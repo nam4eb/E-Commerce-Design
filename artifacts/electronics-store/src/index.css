@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-border: hsl(var(--border));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --font-sans: var(--app-font-sans);
+}
+
+:root {
+  --background: 214 42% 97%;
+  --foreground: 215 36% 16%;
+  --card: 0 0% 100%;
+  --card-foreground: 215 36% 16%;
+  --border: 214 26% 88%;
+  --primary: 213 84% 34%;
+  --primary-foreground: 0 0% 100%;
+  --muted: 214 27% 93%;
+  --muted-foreground: 215 17% 46%;
+  --accent: 38 92% 52%;
+  --accent-foreground: 215 36% 13%;
+  --destructive: 2 72% 49%;
+  --input: 214 24% 82%;
+  --ring: 213 84% 34%;
+  --app-font-sans: 'Inter', sans-serif;
+  --app-font-display: 'Space Grotesk', sans-serif;
+  --radius: .75rem;
+}
+
+.dark {
+  --background: 215 42% 9%;
+  --foreground: 214 30% 94%;
+  --card: 215 37% 13%;
+  --card-foreground: 214 30% 94%;
+  --border: 215 28% 24%;
+  --primary: 211 90% 65%;
+  --primary-foreground: 215 42% 9%;
+  --muted: 215 30% 19%;
+  --muted-foreground: 214 17% 68%;
+  --accent: 38 92% 55%;
+  --accent-foreground: 215 42% 9%;
+  --destructive: 2 72% 59%;
+  --input: 215 28% 28%;
+  --ring: 211 90% 65%;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; min-width: 320px; background: hsl(var(--background)); color: hsl(var(--foreground)); font-family: var(--app-font-sans); }
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+.font-display { font-family: var(--app-font-display); }
+.container-store { width: min(100% - 32px, 1240px); margin-inline: auto; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+.texture { position: relative; isolation: isolate; }
+.texture::after { content: ''; position: fixed; inset: 0; pointer-events: none; opacity: .026; z-index: 50; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.4'/%3E%3C/svg%3E"); }
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.fade-up { animation: fadeUp .55s cubic-bezier(.22,.8,.3,1) both; }
+.stagger-1 { animation-delay: .06s; } .stagger-2 { animation-delay: .12s; } .stagger-3 { animation-delay: .18s; } .stagger-4 { animation-delay: .24s; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulseSoft { 0%,100% { opacity: .65; } 50% { opacity: 1; } }
+.skeleton { background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--card)) 50%, hsl(var(--muted)) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+@media (max-width: 640px) { .container-store { width: min(100% - 24px, 1240px); } }

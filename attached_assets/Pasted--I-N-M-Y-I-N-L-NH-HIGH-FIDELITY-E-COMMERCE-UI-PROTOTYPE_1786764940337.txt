@@ -1,0 +1,1880 @@
+# ĐIỆN MÁY ĐIỆN LẠNH — HIGH-FIDELITY E-COMMERCE UI PROTOTYPE
+
+## 1. VAI TRÒ
+
+Bạn là:
+
+* Senior UI/UX Designer.
+* Senior E-commerce Product Designer.
+* Senior Frontend Engineer.
+* Business Analyst chuyên về E-commerce.
+
+Nhiệm vụ hiện tại là xây dựng **frontend prototype có độ hoàn thiện cao** cho một website thương mại điện tử chuyên bán **điện máy, điện lạnh và thiết bị gia dụng**.
+
+### Mục đích của prototype
+
+Prototype này **chưa phải production website**.
+
+Mục tiêu là:
+
+> Xây dựng một website có giao diện và trải nghiệm đủ hoàn thiện để đưa cho khách hàng sử dụng thử, đánh giá UI/UX, kiểm tra luồng mua hàng và đưa feedback trước khi bắt đầu phát triển backend và hệ thống production.
+
+Do đó:
+
+**Ưu tiên hiện tại:**
+
+1. UI/UX.
+2. Information Architecture.
+3. User Flow.
+4. E-commerce interaction.
+5. Responsive.
+6. Visual hierarchy.
+7. Client presentation.
+
+Chưa cần triển khai backend thật.
+
+---
+
+# 2. DOMAIN CỦA WEBSITE
+
+Website là một **E-commerce platform chuyên bán điện máy, điện lạnh và thiết bị gia dụng**.
+
+Các nhóm sản phẩm chính có thể bao gồm:
+
+### Điều hòa / Máy lạnh
+
+* Điều hòa treo tường.
+* Điều hòa inverter.
+* Điều hòa 1 chiều.
+* Điều hòa 2 chiều.
+* Điều hòa âm trần.
+* Điều hòa tủ đứng.
+* Điều hòa multi.
+* Máy lạnh cho phòng nhỏ.
+* Máy lạnh cho phòng lớn.
+
+### Tủ lạnh
+
+* Tủ lạnh 2 cánh.
+* Tủ lạnh 3 cánh.
+* Tủ lạnh 4 cánh.
+* Side-by-side.
+* Tủ lạnh mini.
+* Tủ lạnh inverter.
+
+### Máy giặt
+
+* Máy giặt cửa trên.
+* Máy giặt cửa trước.
+* Máy giặt sấy.
+* Máy sấy quần áo.
+
+### Tivi
+
+* Smart TV.
+* Google TV.
+* QLED.
+* OLED.
+* Mini LED.
+* TV 4K.
+
+### Thiết bị gia dụng
+
+* Máy lọc không khí.
+* Máy hút ẩm.
+* Máy lọc nước.
+* Máy hút bụi.
+* Robot hút bụi.
+* Bình nóng lạnh.
+* Quạt.
+* Máy nước nóng.
+
+### Thiết bị điện máy khác
+
+Có thể mở rộng thêm các nhóm sản phẩm tùy theo business.
+
+---
+
+# 3. REFERENCE WEBSITE — LAYOUT
+
+Sử dụng:
+
+**https://dienmay365.vn/**
+
+làm reference chính cho:
+
+* Website structure.
+* E-commerce information architecture.
+* Header.
+* Navigation.
+* Category organization.
+* Product listing.
+* Product detail.
+* Promotional sections.
+* Product presentation.
+* News/content integration.
+* Footer.
+* Business-oriented e-commerce layout.
+
+IMPORTANT:
+
+Không clone website Điện Máy 365.
+
+Không copy:
+
+* Logo.
+* Brand identity.
+* Exact HTML.
+* Exact CSS.
+* Exact assets.
+* Exact content.
+
+Chỉ sử dụng website này để hiểu:
+
+**Một website bán điện máy/điện lạnh nên tổ chức thông tin và sản phẩm như thế nào.**
+
+---
+
+# 4. REFERENCE UX — TAOBAO
+
+Sử dụng các nguyên tắc UX phổ biến của Taobao làm nguồn cảm hứng cho:
+
+* Product discovery.
+* Search.
+* Product cards.
+* Promotional badges.
+* Discount presentation.
+* Product recommendations.
+* Category navigation.
+* Shopping cart interaction.
+* Product information density.
+* Quick actions.
+* Flash sale.
+* Shopping-oriented UI.
+* Mobile shopping UX.
+* Micro-interactions.
+
+Không clone giao diện Taobao.
+
+Không sử dụng:
+
+* Logo Taobao.
+* Branding Taobao.
+* Exact color system.
+* Exact layout.
+* Exact components.
+* Exact assets.
+
+Thay vào đó:
+
+> Học cách Taobao tối ưu việc người dùng tìm sản phẩm → xem sản phẩm → so sánh → thêm giỏ hàng → mua hàng.
+
+Sau đó chuyển hóa thành một thiết kế riêng cho website điện máy.
+
+---
+
+# 5. DESIGN DIRECTION
+
+Thiết kế cần kết hợp:
+
+**Điện Máy 365 — E-commerce Structure**
+
+*
+
+**Taobao — Shopping UX**
+
+*
+
+**Modern Vietnamese Electronics Retail**
+
+*
+
+**Professional / Trustworthy Brand**
+
+Website phải tạo cảm giác:
+
+* Uy tín.
+* Chuyên nghiệp.
+* Nhiều sản phẩm.
+* Giá cạnh tranh.
+* Dễ tìm kiếm.
+* Dễ so sánh.
+* Dễ mua hàng.
+* Thông tin rõ ràng.
+* Phù hợp với thị trường Việt Nam.
+
+Không thiết kế theo kiểu:
+
+* SaaS.
+* Corporate dashboard.
+* Landing page đơn giản.
+* Luxury fashion.
+* Minimalism quá mức.
+
+Đây phải là một **website bán hàng thực tế**.
+
+---
+
+# 6. TARGET USERS
+
+Website hướng tới:
+
+### Người mua gia dụng
+
+Người dùng tìm:
+
+* Điều hòa.
+* Tủ lạnh.
+* Máy giặt.
+* Tivi.
+* Thiết bị gia dụng.
+
+### Người mua đang tìm giá
+
+Họ quan tâm:
+
+* Giá.
+* Khuyến mãi.
+* So sánh.
+* Trả góp.
+* Quà tặng.
+
+### Người mua cần tư vấn
+
+Họ quan tâm:
+
+* Công suất.
+* Diện tích phòng.
+* Tính năng.
+* Thương hiệu.
+* Bảo hành.
+* Lắp đặt.
+
+### Khách hàng doanh nghiệp
+
+Có thể bao gồm:
+
+* Nhà thầu.
+* Văn phòng.
+* Nhà hàng.
+* Khách sạn.
+* Công trình.
+
+Prototype nên tạo nền tảng để sau này hỗ trợ nhóm khách hàng này.
+
+---
+
+# 7. BRANDING
+
+Tên thương hiệu tạm thời:
+
+**ĐIỆN MÁY 365**
+
+Nếu project hiện tại đã có brand name khác thì sử dụng brand name đó thay thế.
+
+Không cần copy branding của website reference.
+
+---
+
+# 8. COLOR SYSTEM
+
+Phong cách màu:
+
+### Primary
+
+White.
+
+### Brand Color
+
+Blue.
+
+### Supporting
+
+* Dark navy.
+* Charcoal.
+* Gray.
+* Light gray.
+
+### Promotional
+
+* Red.
+* Orange.
+
+### Status
+
+* Green.
+* Yellow.
+* Red.
+
+Màu đỏ/cam chủ yếu dùng cho:
+
+* Sale.
+* Discount.
+* Flash sale.
+* Promotion.
+
+Không sử dụng quá nhiều màu khiến website trở nên rối.
+
+---
+
+# 9. TYPOGRAPHY
+
+Sử dụng font dễ đọc tiếng Việt.
+
+Ưu tiên:
+
+**Inter**
+
+hoặc font sans-serif hiện đại tương đương.
+
+Typography phải có hierarchy rõ:
+
+```text
+Hero
+↓
+Section title
+↓
+Product title
+↓
+Price
+↓
+Promotion
+↓
+Metadata
+```
+
+Không sử dụng typography quá lớn.
+
+Website bán hàng cần ưu tiên **information density hợp lý**.
+
+---
+
+# 10. GLOBAL WEBSITE STRUCTURE
+
+Desktop:
+
+```text
+Top Promotion Bar
+↓
+Header
+↓
+Search
+↓
+Main Navigation
+↓
+Homepage
+↓
+Product Sections
+↓
+Promotional Sections
+↓
+News
+↓
+Footer
+```
+
+Mobile:
+
+```text
+Mobile Header
+↓
+Search
+↓
+Quick Category
+↓
+Homepage
+↓
+Product Sections
+↓
+Bottom Navigation
+```
+
+---
+
+# 11. TOP PROMOTION BAR
+
+Hiển thị các thông tin:
+
+* Miễn phí vận chuyển.
+* Ưu đãi hôm nay.
+* Khuyến mãi.
+* Hỗ trợ lắp đặt.
+* Chính sách bảo hành.
+
+Ví dụ:
+
+> 🔥 ƯU ĐÃI MÁY LẠNH — GIẢM ĐẾN 30%
+
+hoặc:
+
+> 🚚 HỖ TRỢ GIAO HÀNG & LẮP ĐẶT TOÀN QUỐC
+
+---
+
+# 12. HEADER
+
+Desktop header gồm:
+
+### Logo
+
+**ĐIỆN MÁY 365**
+
+### Search
+
+Search bar lớn ở trung tâm.
+
+Placeholder:
+
+> Bạn đang tìm kiếm sản phẩm gì?
+
+Ví dụ:
+
+> "Điều hòa Daikin 12000 BTU"
+
+### Right Actions
+
+* Hotline.
+* Account.
+* Order tracking.
+* Cart.
+
+Cart hiển thị badge số lượng.
+
+---
+
+# 13. SEARCH UX
+
+Search phải là một trong những thành phần quan trọng nhất.
+
+Khi click search:
+
+Hiển thị:
+
+### Recent searches
+
+```text
+Điều hòa Daikin
+Máy lạnh Panasonic
+Tủ lạnh Samsung
+Máy giặt LG
+```
+
+### Popular searches
+
+```text
+Điều hòa inverter
+Điều hòa 12000 BTU
+Tủ lạnh 4 cánh
+Máy giặt cửa trước
+```
+
+### Suggested categories
+
+```text
+Điều hòa
+Tủ lạnh
+Máy giặt
+Tivi
+```
+
+Khi người dùng nhập:
+
+> "Daikin"
+
+Hiển thị autocomplete:
+
+```text
+Sản phẩm
+Điều hòa Daikin 9000 BTU
+Điều hòa Daikin 12000 BTU
+Điều hòa Daikin Inverter
+
+Danh mục
+Điều hòa Daikin
+
+Thương hiệu
+Daikin
+```
+
+Dùng mock data.
+
+---
+
+# 14. MAIN NAVIGATION
+
+Navigation:
+
+* Điều hòa.
+* Tủ lạnh.
+* Máy giặt.
+* Tivi.
+* Máy lọc không khí.
+* Bình nóng lạnh.
+* Đồ gia dụng.
+* Khuyến mãi.
+* Thương hiệu.
+* Tin tức.
+
+Có thể sử dụng Mega Menu.
+
+Mega Menu cần:
+
+* Category.
+* Subcategory.
+* Featured products.
+* Promotion banner.
+
+---
+
+# 15. HOMEPAGE
+
+Homepage là trang quan trọng nhất.
+
+Structure:
+
+```text
+Header
+↓
+Navigation
+↓
+Hero Banner
+↓
+Quick Categories
+↓
+Flash Sale
+↓
+Featured Products
+↓
+Popular Categories
+↓
+Best Sellers
+↓
+Brand Section
+↓
+Promotion Banner
+↓
+Recommended Products
+↓
+News
+↓
+Trust Section
+↓
+Footer
+```
+
+---
+
+# 16. HERO SECTION
+
+Hero phải tập trung vào các sản phẩm điện máy.
+
+Ví dụ:
+
+### Campaign 1
+
+> ĐIỀU HÒA INVERTER
+
+> Tiết kiệm điện — Làm lạnh nhanh — Vận hành êm
+
+CTA:
+
+**XEM SẢN PHẨM**
+
+### Campaign 2
+
+> TỦ LẠNH THẾ HỆ MỚI
+
+> Công nghệ hiện đại cho gia đình hiện đại
+
+CTA:
+
+**KHÁM PHÁ NGAY**
+
+Có thể sử dụng carousel.
+
+Có:
+
+* Previous.
+* Next.
+* Dots.
+* Auto-play nhẹ.
+
+---
+
+# 17. QUICK CATEGORY
+
+Hiển thị các category lớn bằng visual card.
+
+Ví dụ:
+
+```text
+[Điều hòa]
+
+[Tủ lạnh]
+
+[Máy giặt]
+
+[Tivi]
+
+[Máy lọc không khí]
+
+[Bình nóng lạnh]
+
+[Robot hút bụi]
+
+[Đồ gia dụng]
+```
+
+Mỗi category:
+
+* Image.
+* Name.
+* Number of products.
+
+---
+
+# 18. FLASH SALE
+
+Tạo section:
+
+# FLASH SALE
+
+Có countdown.
+
+Ví dụ:
+
+```text
+FLASH SALE
+
+02 : 14 : 38
+
+Điều hòa Panasonic
+CU/CS-XU9ZKH-8
+
+9.490.000₫
+11.990.000₫
+
+-21%
+
+Đã bán 82
+████████░░
+```
+
+Product card cần hiển thị:
+
+* Sale price.
+* Original price.
+* Discount.
+* Sold quantity.
+* Progress bar.
+* Promotion badge.
+
+---
+
+# 19. PRODUCT CARD
+
+Product card là component quan trọng.
+
+Hiển thị:
+
+```text
+[PRODUCT IMAGE]
+
+DAIKIN
+
+Điều hòa Daikin Inverter
+1 chiều 12000 BTU
+
+★★★★★ 4.9
+126 đánh giá
+
+12.490.000₫
+
+14.990.000₫
+
+-17%
+
+🚚 Miễn phí vận chuyển
+
+⚡ Còn 8 sản phẩm
+```
+
+Có:
+
+* Wishlist.
+* Quick view.
+* Add to cart.
+* Compare.
+
+---
+
+# 20. PRODUCT CARD MICRO UX
+
+Desktop hover:
+
+* Image zoom nhẹ.
+* Quick View.
+* Add to Cart.
+* Wishlist.
+
+Mobile:
+
+Không dựa vào hover.
+
+Hiển thị touch action rõ ràng.
+
+Card phải:
+
+* Compact.
+* Easy to scan.
+* Clear pricing.
+* Clear promotion.
+* Consistent image ratio.
+
+---
+
+# 21. PRODUCT LISTING
+
+Route:
+
+`/products`
+
+Có:
+
+### Breadcrumb
+
+```text
+Trang chủ
+>
+Điều hòa
+```
+
+### Sidebar
+
+Filters:
+
+* Thương hiệu.
+* Khoảng giá.
+* Công suất.
+* Inverter.
+* Loại máy.
+* Diện tích sử dụng.
+* Tiết kiệm điện.
+* Đánh giá.
+* Tình trạng.
+
+### Sort
+
+* Phổ biến.
+* Bán chạy.
+* Mới nhất.
+* Giá thấp → cao.
+* Giá cao → thấp.
+* Khuyến mãi.
+
+---
+
+# 22. AIR CONDITIONER FILTER UX
+
+Đây là điểm đặc biệt quan trọng.
+
+Đối với category:
+
+**Điều hòa / Máy lạnh**
+
+cho phép lọc:
+
+### Công suất
+
+* 9000 BTU.
+* 12000 BTU.
+* 18000 BTU.
+* 24000 BTU.
+
+### Diện tích phòng
+
+* Dưới 15m².
+* 15–20m².
+* 20–30m².
+* 30–40m².
+* Trên 40m².
+
+### Loại
+
+* 1 chiều.
+* 2 chiều.
+* Inverter.
+* Non-Inverter.
+
+### Thương hiệu
+
+* Daikin.
+* Panasonic.
+* LG.
+* Samsung.
+* Casper.
+* Mitsubishi.
+* Toshiba.
+
+Đây phải là UX nổi bật vì nó giúp người dùng chọn đúng sản phẩm.
+
+---
+
+# 23. PRODUCT DETAIL
+
+Product detail phải được thiết kế giống một website e-commerce thực tế.
+
+Left:
+
+* Main image.
+* Thumbnail.
+* Zoom.
+* Product image gallery.
+
+Right:
+
+```text
+DAIKIN
+
+Điều hòa Daikin Inverter
+12000 BTU 1 chiều
+
+★★★★★ 4.9
+328 đánh giá
+1.2k đã bán
+
+12.490.000₫
+
+14.990.000₫
+
+Tiết kiệm 2.500.000₫
+```
+
+Sau đó:
+
+### Promotion
+
+```text
+🎁 ƯU ĐÃI
+
+- Miễn phí vận chuyển.
+- Hỗ trợ lắp đặt.
+- Tặng voucher.
+- Bảo hành chính hãng.
+```
+
+### Configuration
+
+* Công suất.
+* Màu.
+* Model.
+
+### Quantity
+
+```text
+[-] 1 [+]
+```
+
+Buttons:
+
+**THÊM VÀO GIỎ**
+
+**MUA NGAY**
+
+---
+
+# 24. PRODUCT INFORMATION
+
+Product detail cần có:
+
+* Mô tả.
+* Thông số kỹ thuật.
+* Công suất.
+* Điện năng tiêu thụ.
+* Kích thước.
+* Trọng lượng.
+* Xuất xứ.
+* Bảo hành.
+* Công nghệ.
+* Phụ kiện.
+
+Tabs:
+
+```text
+Mô tả
+Thông số kỹ thuật
+Đánh giá
+Chính sách bảo hành
+Vận chuyển & lắp đặt
+```
+
+---
+
+# 25. PRODUCT COMPARISON
+
+Vì sản phẩm điện máy thường có nhiều model tương tự nhau, tạo UI:
+
+**SO SÁNH SẢN PHẨM**
+
+Cho phép chọn tối đa 3–4 sản phẩm.
+
+Ví dụ:
+
+```text
+              Daikin       Panasonic      LG
+
+Giá           ...          ...            ...
+
+Công suất      12.000 BTU  12.000 BTU    12.000 BTU
+
+Inverter       ✓            ✓              ✓
+
+WiFi           ✓            ✕              ✓
+
+Bảo hành      12 tháng      12 tháng       24 tháng
+```
+
+Đây là feature quan trọng cho UX.
+
+---
+
+# 26. CART
+
+Cart cần có:
+
+* Product.
+* Model.
+* Quantity.
+* Price.
+* Discount.
+* Remove.
+* Selected products.
+
+Summary:
+
+```text
+Tạm tính
+Giảm giá
+Phí vận chuyển
+Tổng cộng
+```
+
+Có:
+
+**TIẾP TỤC MUA HÀNG**
+
+**TIẾN HÀNH ĐẶT HÀNG**
+
+---
+
+# 27. CHECKOUT
+
+Checkout gồm:
+
+### Customer Information
+
+* Họ tên.
+* Số điện thoại.
+* Email.
+
+### Address
+
+* Tỉnh / Thành phố.
+* Quận / Huyện.
+* Phường / Xã.
+* Địa chỉ.
+
+### Delivery
+
+* Giao hàng.
+* Lắp đặt.
+
+### Payment
+
+* COD.
+* Chuyển khoản.
+* Online payment.
+
+---
+
+# 28. INSTALLATION SERVICE
+
+Vì đây là website điện máy/điện lạnh, cần thể hiện rõ:
+
+**DỊCH VỤ LẮP ĐẶT**
+
+Ví dụ:
+
+```text
+☑ Giao hàng tận nơi
+
+☑ Hỗ trợ lắp đặt
+
+☑ Kỹ thuật viên
+
+☑ Bảo hành chính hãng
+```
+
+Đối với máy lạnh, có thể có:
+
+```text
+Lắp đặt tiêu chuẩn
++500.000₫
+
+Lắp đặt nâng cao
+Liên hệ
+```
+
+Chỉ là mock UI, chưa cần backend.
+
+---
+
+# 29. ORDER SUCCESS
+
+Sau checkout:
+
+```text
+✓ ĐẶT HÀNG THÀNH CÔNG
+
+Mã đơn hàng:
+DM365-20260815-001
+
+Tổng tiền:
+12.990.000₫
+
+Phương thức:
+COD
+
+Giao hàng dự kiến:
+2–4 ngày
+```
+
+CTA:
+
+**THEO DÕI ĐƠN HÀNG**
+
+---
+
+# 30. USER ACCOUNT
+
+Route:
+
+`/account`
+
+Sections:
+
+* Thông tin cá nhân.
+* Đơn hàng.
+* Địa chỉ.
+* Sản phẩm yêu thích.
+* Sản phẩm đã xem.
+* So sánh sản phẩm.
+
+Order status:
+
+* Chờ xác nhận.
+* Đã xác nhận.
+* Đang chuẩn bị.
+* Đang giao.
+* Đã giao.
+* Đã hủy.
+
+---
+
+# 31. NEWS / CONTENT
+
+Website không chỉ bán hàng mà còn có nội dung.
+
+Categories:
+
+* Tin điện máy.
+* Tư vấn điều hòa.
+* Kinh nghiệm chọn máy lạnh.
+* Kinh nghiệm chọn tủ lạnh.
+* Kinh nghiệm chọn máy giặt.
+* Công nghệ mới.
+* Khuyến mãi.
+
+Homepage có:
+
+**TIN TỨC & TƯ VẤN**
+
+---
+
+# 32. ARTICLE DETAIL
+
+Article gồm:
+
+* Breadcrumb.
+* Title.
+* Author.
+* Published date.
+* Hero image.
+* Article content.
+* Related products.
+* Related articles.
+
+Ví dụ:
+
+> Cách chọn điều hòa phù hợp với diện tích phòng
+
+Bên trong bài có thể liên kết tới:
+
+> Điều hòa 9000 BTU
+
+> Điều hòa 12000 BTU
+
+Điều này giúp prototype thể hiện được hướng SEO/content commerce sau này.
+
+---
+
+# 33. TRUST SECTION
+
+Cuối homepage:
+
+```text
+🚚 Giao hàng tận nơi
+
+🔧 Hỗ trợ lắp đặt
+
+🛡 Bảo hành chính hãng
+
+💳 Thanh toán an toàn
+
+☎ Hỗ trợ tư vấn
+```
+
+Mục tiêu:
+
+Tăng trust và conversion.
+
+---
+
+# 34. FOOTER
+
+Footer:
+
+### Về chúng tôi
+
+* Giới thiệu.
+* Liên hệ.
+* Hệ thống cửa hàng.
+
+### Chính sách
+
+* Chính sách giao hàng.
+* Chính sách đổi trả.
+* Chính sách bảo hành.
+* Chính sách bảo mật.
+
+### Hỗ trợ
+
+* Hotline.
+* Email.
+* FAQ.
+
+### Social
+
+* Facebook.
+* TikTok.
+* YouTube.
+
+---
+
+# 35. MOBILE UX
+
+Mobile là một phần quan trọng.
+
+Header:
+
+```text
+Logo
+Search
+Cart
+```
+
+Search nằm dưới header nếu cần.
+
+Bottom navigation:
+
+```text
+Trang chủ
+Danh mục
+Tìm kiếm
+Giỏ hàng
+Tài khoản
+```
+
+Product grid:
+
+**2 products / row**
+
+Filter:
+
+Dùng bottom sheet / drawer.
+
+Cart:
+
+Có sticky checkout summary.
+
+---
+
+# 36. RESPONSIVE BREAKPOINTS
+
+Phải test:
+
+```text
+1920px
+1440px
+1280px
+1024px
+768px
+430px
+390px
+375px
+```
+
+Không được có:
+
+* Horizontal overflow.
+* Text bị cắt.
+* Button quá nhỏ.
+* Product image méo.
+* Header vỡ layout.
+
+---
+
+# 37. MOCK DATA
+
+Không để prototype trống.
+
+Tạo ít nhất:
+
+### Products
+
+30 sản phẩm.
+
+Trong đó có:
+
+* 8 điều hòa.
+* 5 tủ lạnh.
+* 5 máy giặt.
+* 5 tivi.
+* 7 sản phẩm gia dụng khác.
+
+Brands:
+
+* Daikin.
+* Panasonic.
+* LG.
+* Samsung.
+* Casper.
+* Mitsubishi Electric.
+* Toshiba.
+* Aqua.
+* Sharp.
+
+### Categories
+
+Ít nhất 10 category.
+
+### Articles
+
+Ít nhất 10 bài.
+
+### Orders
+
+Ít nhất 10 đơn hàng.
+
+---
+
+# 38. PRODUCT DATA
+
+Mỗi product mock data nên có:
+
+```text
+id
+name
+brand
+category
+model
+price
+originalPrice
+discount
+rating
+reviewCount
+soldCount
+stock
+images
+specifications
+badges
+isFlashSale
+isBestSeller
+isNew
+```
+
+Đối với điều hòa thêm:
+
+```text
+capacity
+btu
+roomSize
+inverter
+coolingType
+energyRating
+```
+
+---
+
+# 39. INTERACTIONS
+
+Prototype phải có interaction thực tế.
+
+Implement:
+
+* Search autocomplete.
+* Category menu.
+* Product filter.
+* Product sort.
+* Add to cart.
+* Update cart.
+* Remove cart.
+* Wishlist.
+* Compare.
+* Quick view.
+* Product gallery.
+* Product zoom.
+* Product variant.
+* Flash sale countdown.
+* Toast.
+* Modal.
+* Mobile drawer.
+* Checkout.
+* Order success.
+
+Dùng frontend mock state.
+
+---
+
+# 40. UI STATES
+
+Phải có:
+
+### Loading
+
+Skeleton.
+
+### Empty
+
+Ví dụ:
+
+> Không tìm thấy sản phẩm phù hợp.
+
+### Error
+
+Ví dụ:
+
+> Có lỗi xảy ra. Vui lòng thử lại.
+
+### Success
+
+Ví dụ:
+
+> Đã thêm sản phẩm vào giỏ hàng.
+
+### Disabled
+
+Button disabled phải có visual state rõ.
+
+---
+
+# 41. ADMIN PROTOTYPE
+
+Tạo basic Admin UI.
+
+Route:
+
+`/admin`
+
+Dashboard:
+
+```text
+Doanh thu
+Đơn hàng
+Khách hàng
+Sản phẩm
+
+Biểu đồ doanh thu
+
+Đơn hàng gần đây
+
+Sản phẩm sắp hết hàng
+```
+
+Sidebar:
+
+* Dashboard.
+* Sản phẩm.
+* Danh mục.
+* Đơn hàng.
+* Khách hàng.
+* Khuyến mãi.
+* Bài viết.
+* Media.
+* Cài đặt.
+
+Admin UI phải:
+
+**Dense + Functional + Efficient**
+
+Không cần giống storefront.
+
+---
+
+# 42. TECH STACK
+
+Ưu tiên sử dụng stack frontend phù hợp nhất với Replit hiện tại.
+
+Nếu project mới:
+
+* React.
+* TypeScript.
+* Tailwind CSS.
+* Lucide Icons.
+
+Có thể sử dụng Next.js nếu phù hợp.
+
+Không thay đổi stack hiện tại nếu project đã có frontend setup tốt.
+
+---
+
+# 43. COMPONENT ARCHITECTURE
+
+Không viết toàn bộ website trong một file.
+
+Tổ chức component:
+
+```text
+src/
+
+components/
+    layout/
+    header/
+    navigation/
+    product/
+    cart/
+    checkout/
+    search/
+    category/
+    promotion/
+    news/
+    common/
+
+pages/
+
+data/
+
+services/
+
+hooks/
+
+store/
+
+types/
+
+utils/
+```
+
+Mock data phải nằm riêng.
+
+Không hard-code product data trực tiếp vào component.
+
+---
+
+# 44. MOCK API LAYER
+
+Mặc dù chưa có Laravel backend, hãy tạo abstraction:
+
+```text
+UI
+↓
+Service Layer
+↓
+Mock Data
+```
+
+Ví dụ:
+
+```text
+productService.getProducts()
+productService.getProductById()
+productService.searchProducts()
+cartService.addItem()
+orderService.createOrder()
+```
+
+Sau này có thể thay:
+
+```text
+Mock Service
+```
+
+bằng:
+
+```text
+Laravel API
+```
+
+mà không phải rewrite UI.
+
+---
+
+# 45. CHƯA CẦN BACKEND
+
+Tuyệt đối chưa cần:
+
+* Laravel.
+* MySQL.
+* Real authentication.
+* Real payment.
+* Real order API.
+* Real inventory.
+* Real WebSocket.
+* Real email.
+* Real storage.
+
+Tất cả chỉ cần frontend prototype.
+
+---
+
+# 46. PERFORMANCE
+
+Prototype vẫn phải có performance tốt.
+
+Ưu tiên:
+
+* Lazy loading images.
+* Responsive images.
+* Component reuse.
+* Avoid unnecessary rendering.
+* Lightweight animations.
+* Code splitting nếu cần.
+
+Không sử dụng animation nặng chỉ để làm website "wow".
+
+---
+
+# 47. ACCESSIBILITY
+
+Implement:
+
+* Semantic HTML.
+* Keyboard navigation.
+* Focus state.
+* Alt text.
+* Accessible buttons.
+* Accessible forms.
+* Adequate contrast.
+
+---
+
+# 48. DO NOT MAKE IT LOOK LIKE AN AI TEMPLATE
+
+Đây là yêu cầu rất quan trọng.
+
+Không tạo website có cảm giác:
+
+> "AI generated landing page"
+
+Tránh:
+
+* Hero quá lớn.
+* Gradient vô nghĩa.
+* Glassmorphism.
+* Card bo góc quá mức.
+* Khoảng trắng quá nhiều.
+* Các section giống nhau.
+* Lorem ipsum.
+* Product name giả kiểu generic.
+* Icon không liên quan.
+* Layout quá đơn giản.
+
+Website phải có cảm giác:
+
+> **Một website thương mại điện tử điện máy thực tế tại Việt Nam.**
+
+---
+
+# 49. USER JOURNEY PHẢI TEST ĐƯỢC
+
+Client phải có thể thực hiện:
+
+```text
+Homepage
+↓
+Tìm "Điều hòa Daikin"
+↓
+Autocomplete
+↓
+Product Listing
+↓
+Filter 12000 BTU
+↓
+Chọn Inverter
+↓
+Open Product
+↓
+Xem thông số
+↓
+So sánh
+↓
+Add Cart
+↓
+Checkout
+↓
+Chọn giao hàng + lắp đặt
+↓
+Đặt hàng
+↓
+Order Success
+```
+
+Đây là **main demo flow**.
+
+---
+
+# 50. SECONDARY USER JOURNEY
+
+```text
+Homepage
+↓
+Danh mục Điều hòa
+↓
+Filter
+↓
+Compare products
+↓
+Read product information
+↓
+Open related article
+↓
+Return to product
+↓
+Add to cart
+```
+
+---
+
+# 51. DESIGN SYSTEM FIRST
+
+Trước khi xây toàn bộ website, hãy thiết lập:
+
+* Color tokens.
+* Typography.
+* Spacing.
+* Border radius.
+* Shadows.
+* Buttons.
+* Inputs.
+* Badges.
+* Product cards.
+* Modal.
+* Drawer.
+* Toast.
+* Skeleton.
+
+Sau đó mới dùng chúng xuyên suốt website.
+
+Không tạo mỗi page một style riêng.
+
+---
+
+# 52. IMPLEMENTATION ORDER
+
+Thực hiện theo thứ tự:
+
+## PHASE 1
+
+Design system.
+
+## PHASE 2
+
+Header + Navigation + Footer.
+
+## PHASE 3
+
+Homepage.
+
+## PHASE 4
+
+Product Listing.
+
+## PHASE 5
+
+Product Detail.
+
+## PHASE 6
+
+Compare.
+
+## PHASE 7
+
+Cart.
+
+## PHASE 8
+
+Checkout.
+
+## PHASE 9
+
+Order Success.
+
+## PHASE 10
+
+Account.
+
+## PHASE 11
+
+News.
+
+## PHASE 12
+
+Admin.
+
+## PHASE 13
+
+Mobile responsive.
+
+## PHASE 14
+
+UI polish.
+
+---
+
+# 53. IMPORTANT DEVELOPMENT RULE
+
+Before coding:
+
+1. Inspect existing project.
+2. Determine existing framework.
+3. Reuse existing setup if reasonable.
+4. Do not reinstall unnecessary dependencies.
+5. Do not rewrite existing working code.
+6. Create reusable components.
+7. Separate mock data from UI.
+8. Keep pages modular.
+
+After implementation:
+
+1. Run project.
+2. Check build.
+3. Check console.
+4. Test main user journey.
+5. Test mobile.
+6. Fix visual inconsistencies.
+7. Fix broken interactions.
+
+---
+
+# 54. FINAL QUALITY CRITERIA
+
+Prototype chỉ được coi là hoàn thành khi:
+
+### Homepage
+
+* [ ] Professional header.
+* [ ] Search works.
+* [ ] Navigation works.
+* [ ] Hero works.
+* [ ] Categories populated.
+* [ ] Flash sale works.
+* [ ] Products populated.
+* [ ] Brands populated.
+* [ ] News populated.
+* [ ] Trust section exists.
+* [ ] Footer complete.
+
+### Product
+
+* [ ] Listing works.
+* [ ] Filters work.
+* [ ] Sorting works.
+* [ ] Product detail works.
+* [ ] Gallery works.
+* [ ] Compare works.
+* [ ] Add to cart works.
+
+### Cart
+
+* [ ] Quantity works.
+* [ ] Remove works.
+* [ ] Total updates.
+* [ ] Checkout works.
+
+### Checkout
+
+* [ ] Form works.
+* [ ] Delivery selection works.
+* [ ] Installation selection works.
+* [ ] Payment selection works.
+* [ ] Order success works.
+
+### Mobile
+
+* [ ] Header works.
+* [ ] Search works.
+* [ ] Bottom navigation works.
+* [ ] Product grid works.
+* [ ] Filters work.
+* [ ] Cart works.
+* [ ] Checkout works.
+
+---
+
+# 55. FINAL DESIGN TARGET
+
+The final website should feel like:
+
+**A PROFESSIONAL VIETNAMESE ELECTRONICS E-COMMERCE WEBSITE**
+
+with:
+
+**Điện Máy 365-style information architecture**
+
+*
+
+**Taobao-inspired product discovery and shopping UX**
+
+*
+
+**Modern clean blue/white visual identity**
+
+*
+
+**Strong conversion-focused product presentation**
+
+*
+
+**Excellent mobile shopping experience**
+
+Do NOT directly clone either reference website.
+
+The objective is to **extract the best structural and UX principles and create an original design for the business.**
+
+---
+
+# 56. FINAL INSTRUCTION TO REPLIT AGENT
+
+Start by inspecting the current Replit project.
+
+If this is a new project, create the frontend prototype using the most appropriate existing Replit-supported frontend stack.
+
+Do NOT start building Laravel or database infrastructure.
+
+Build the prototype progressively:
+
+**Design System → Header → Navigation → Homepage → Product Listing → Product Detail → Compare → Cart → Checkout → Account → News → Admin → Responsive → Polish**
+
+Do not stop after creating only a landing page.
+
+The final result must be a **fully navigable, high-fidelity interactive e-commerce prototype**, suitable for presenting to a real client and collecting UI/UX feedback before production development begins.

@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Điện Máy 365"
+description = "A high-fidelity Vietnamese electronics ecommerce prototype for browsing appliances, comparing products, managing a cart, and completing a mock checkout journey."
+version = "1.0.0"
+id = "artifacts/electronics-store"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19108
+
+[services.development]
+run = "pnpm --filter @workspace/electronics-store run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/electronics-store", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/electronics-store/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19108"
+BASE_PATH = "/"
