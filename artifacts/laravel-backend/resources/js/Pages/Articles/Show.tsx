@@ -1,0 +1,9 @@
+import { Link } from '@inertiajs/react';
+import { ChevronRight } from 'lucide-react';
+import CatalogProductCard, { CatalogProduct } from '../../Components/CatalogProductCard';
+import SeoHead from '../../Components/SeoHead';
+import StoreLayout from '../../Layouts/StoreLayout';
+
+export default function ArticleShow({article, seo, breadcrumbs, jsonLd}: any) {
+    return <StoreLayout><SeoHead seo={seo} jsonLd={jsonLd}/><main className="container-store py-8"><nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap gap-2 text-xs text-[#8293a8]">{breadcrumbs.map((item: any,index: number)=><span key={item.url} className="flex items-center gap-2">{index > 0 && <ChevronRight size={14}/>}<Link href={item.url}>{item.name}</Link></span>)}</nav><article className="mx-auto max-w-4xl"><header><h1 className="font-display text-3xl font-bold leading-tight text-[#14385f] sm:text-5xl">{article.title}</h1><p className="mt-4 text-lg leading-8 text-[#71869d]">{article.excerpt}</p><div className="mt-4 text-sm text-[#8293a8]">{article.author?.name || 'Điện Máy 365'} · <time>{new Date(article.published_at).toLocaleDateString('vi-VN')}</time></div></header>{article.featured_image && <img src={article.featured_image} alt={article.title} width="1200" height="675" className="mt-8 aspect-video w-full object-cover"/>}<div className="mt-8 whitespace-pre-line text-base leading-8 text-[#315575]">{article.content}</div></article>{article.relatedProducts.length > 0 && <section className="mt-12 border-t border-[#dce5ef] pt-8"><h2 className="font-display text-2xl font-bold text-[#14385f]">Sản phẩm liên quan</h2><div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{article.relatedProducts.map((product: CatalogProduct) => <CatalogProductCard key={product.id} product={product}/>)}</div></section>}</main></StoreLayout>;
+}

@@ -1,0 +1,117 @@
+name: dienmay365
+
+x-app-environment: &app-environment
+  APP_NAME: Điện Máy 365
+  APP_ENV: local
+  APP_KEY: ${APP_KEY:-base64:4QsNIvvK2r4O1tjXO39exlqVkb4D5say0fJZM8F30/w=}
+  APP_DEBUG: "true"
+  APP_URL: http://localhost:8000
+  DB_CONNECTION: mysql
+  DB_HOST: mysql
+  DB_PORT: 3306
+  DB_DATABASE: ${DB_DATABASE:-dienmay365}
+  DB_USERNAME: ${DB_USERNAME:-dienmay365}
+  DB_PASSWORD: ${DB_PASSWORD:-local-secret}
+  REDIS_CLIENT: phpredis
+  REDIS_HOST: redis
+  REDIS_PORT: 6379
+  CACHE_STORE: redis
+  SESSION_DRIVER: redis
+  QUEUE_CONNECTION: redis
+  INERTIA_SSR_ENABLED: "true"
+  INERTIA_SSR_URL: http://ssr:13714
+  INERTIA_SSR_THROW_ON_ERROR: "true"
+  MANUAL_PAYMENT_WEBHOOK_SECRET: ${MANUAL_PAYMENT_WEBHOOK_SECRET:-}
+  PAYMENT_WEBHOOK_TOLERANCE: ${PAYMENT_WEBHOOK_TOLERANCE:-300}
+  MANUAL_SHIPPING_WEBHOOK_SECRET: ${MANUAL_SHIPPING_WEBHOOK_SECRET:-}
+  SHIPPING_WEBHOOK_TOLERANCE: ${SHIPPING_WEBHOOK_TOLERANCE:-300}
+
+services:
+  app:
+    build:
+      context: .
+      target: app
+    environment: *app-environment
+    ports:
+      - "8000:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ssr:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "php", "artisan", "about", "--only=environment"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  ssr:
+    build:
+      context: .
+      target: ssr
+    environment:
+      NODE_ENV: production
+      PORT: 13714
+    expose:
+      - "13714"
+
+  queue:
+    build:
+      context: .
+      target: app
+    command: php artisan queue:work --sleep=1 --tries=3 --timeout=90
+    environment: *app-environment
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  scheduler:
+    build:
+      context: .
+      target: app
+    command: php artisan schedule:work
+    environment: *app-environment
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-dienmay365}
+      MYSQL_USER: ${DB_USERNAME:-dienmay365}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-local-secret}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root-local-secret}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 180s
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  mysql-data:
+  redis-data:

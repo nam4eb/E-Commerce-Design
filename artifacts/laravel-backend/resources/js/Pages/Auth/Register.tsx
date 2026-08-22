@@ -1,0 +1,8 @@
+import { Link, useForm } from '@inertiajs/react';
+import FormField from '../../Components/FormField';
+import AuthLayout from '../../Layouts/AuthLayout';
+
+export default function Register() {
+    const form = useForm({ name: '', email: '', phone: '', password: '', password_confirmation: '' });
+    return <AuthLayout title="Tạo tài khoản" description="Đăng ký để theo dõi đơn hàng và lưu thông tin nhận hàng."><form onSubmit={e => { e.preventDefault(); form.post('/dang-ky'); }} className="space-y-4"><FormField label="Họ và tên" autoComplete="name" value={form.data.name} onChange={e => form.setData('name', e.target.value)} error={form.errors.name}/><FormField label="Email" type="email" autoComplete="email" value={form.data.email} onChange={e => form.setData('email', e.target.value)} error={form.errors.email}/><FormField label="Số điện thoại" type="tel" autoComplete="tel" value={form.data.phone} onChange={e => form.setData('phone', e.target.value)} error={form.errors.phone}/><FormField label="Mật khẩu" type="password" autoComplete="new-password" value={form.data.password} onChange={e => form.setData('password', e.target.value)} error={form.errors.password}/><FormField label="Xác nhận mật khẩu" type="password" autoComplete="new-password" value={form.data.password_confirmation} onChange={e => form.setData('password_confirmation', e.target.value)}/><button disabled={form.processing} className="h-11 w-full bg-[#0b4fa4] font-bold text-white disabled:opacity-60">Đăng ký</button></form><p className="mt-5 text-center text-sm text-[#607b98]">Đã có tài khoản? <Link href="/dang-nhap" className="font-semibold text-[#0b4fa4]">Đăng nhập</Link></p></AuthLayout>;
+}
