@@ -25,10 +25,13 @@ class ProductForm
                 TextInput::make('name')
                     ->required(),
                 TextInput::make('slug')
+                    ->unique(ignoreRecord: true)
+                    ->regex('/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
                     ->required(),
                 TextInput::make('legacy_id'),
                 TextInput::make('sku')
                     ->label('SKU')
+                    ->unique(ignoreRecord: true)
                     ->required(),
                 TextInput::make('gtin'),
                 TextInput::make('mpn'),
@@ -68,13 +71,15 @@ class ProductForm
                 TextInput::make('cooling_type'),
                 TextInput::make('energy_rating'),
                 TextInput::make('warranty'),
-                TextInput::make('seo_title'),
+                TextInput::make('seo_title')->maxLength(60),
                 Textarea::make('seo_description')
+                    ->maxLength(160)
                     ->columnSpanFull(),
                 TextInput::make('canonical_url')
                     ->url(),
-                TextInput::make('og_title'),
+                TextInput::make('og_title')->maxLength(95),
                 Textarea::make('og_description')
+                    ->maxLength(200)
                     ->columnSpanFull(),
                 FileUpload::make('og_image')
                     ->image(),

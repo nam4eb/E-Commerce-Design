@@ -22,6 +22,20 @@ class OrderStatusService
         'failed' => [],
     ];
 
+    /** @return array<string, string> */
+    public function allowedTargets(Order $order): array
+    {
+        return collect(self::TRANSITIONS[$order->status->value])
+            ->mapWithKeys(fn (string $status) => [$status => match ($status) {
+                'confirmed' => 'Xác nhận',
+                'processing' => 'Đang xử lý',
+                'shipping' => 'Đang giao',
+                'delivered' => 'Đã giao',
+                'cancelled' => 'Hủy đơn',
+                'failed' => 'Thất bại',
+            }])->all();
+    }
+
     public function transition(Order $order, OrderStatus $target): Order
     {
         return DB::transaction(function () use ($order, $target) {

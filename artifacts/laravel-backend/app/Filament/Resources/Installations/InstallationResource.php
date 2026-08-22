@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\Installations;
 
-use App\Filament\Resources\Installations\Pages\CreateInstallation;
-use App\Filament\Resources\Installations\Pages\EditInstallation;
 use App\Filament\Resources\Installations\Pages\ListInstallations;
 use App\Filament\Resources\Installations\Schemas\InstallationForm;
 use App\Filament\Resources\Installations\Tables\InstallationsTable;
@@ -41,8 +39,6 @@ class InstallationResource extends Resource
     {
         return [
             'index' => ListInstallations::route('/'),
-            'create' => CreateInstallation::route('/create'),
-            'edit' => EditInstallation::route('/{record}/edit'),
         ];
     }
 }

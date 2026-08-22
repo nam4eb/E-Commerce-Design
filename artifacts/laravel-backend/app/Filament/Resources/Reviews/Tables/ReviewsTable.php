@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources\Reviews\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
+use App\Enums\ReviewStatus;
+use App\Models\Review;
+use App\Services\ReviewModerationService;
+use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -49,12 +50,21 @@ class ReviewsTable
                 //
             ])
             ->recordActions([
-                EditAction::make(),
+                Action::make('approve')
+                    ->label('Duyệt')
+                    ->color('success')
+                    ->visible(fn (Review $record): bool => $record->status !== ReviewStatus::Approved
+                        && auth()->user()?->hasAdminPermission('reviews.manage') === true)
+                    ->requiresConfirmation()
+                    ->action(fn (Review $record) => app(ReviewModerationService::class)->moderate($record, ReviewStatus::Approved)),
+                Action::make('reject')
+                    ->label('Từ chối')
+                    ->color('danger')
+                    ->visible(fn (Review $record): bool => $record->status !== ReviewStatus::Rejected
+                        && auth()->user()?->hasAdminPermission('reviews.manage') === true)
+                    ->requiresConfirmation()
+                    ->action(fn (Review $record) => app(ReviewModerationService::class)->moderate($record, ReviewStatus::Rejected)),
             ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->toolbarActions([]);
     }
 }

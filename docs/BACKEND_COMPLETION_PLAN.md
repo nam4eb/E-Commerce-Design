@@ -487,3 +487,31 @@ Verification ngày 2026-08-22:
 - Browser desktop/mobile: hydration, compare persistence, promotion cards, responsive table và horizontal-overflow checks đều đạt; không có console warning/error.
 
 Không triển khai thêm cart/checkout/order/provider/admin trong Phase 11. Các bước tiếp theo là Phase 12 Filament hardening, sau đó media/reviews/jobs, security/observability/performance và production deployment/UAT.
+
+## 16. Báo cáo thực hiện Phase 12 — Filament production hardening
+
+Đã thay quyền truy cập admin nhị phân bằng permission matrix theo vai trò mà không thêm dependency RBAC ngoài:
+
+- `admin`: super-admin tương thích dữ liệu cũ.
+- `catalog_editor`: quản lý catalog/promotion/settings liên quan catalog, chỉ xem content.
+- `content_editor`: quản lý bài viết và moderation review, chỉ xem catalog.
+- `order_operator`: xem khách hàng và quản lý order workflow qua domain action.
+- `support`: chỉ xem catalog, commerce, customer và review.
+- `read_only`: chỉ xem toàn bộ domain được cấp.
+- `customer`: không truy cập Filament.
+
+Policy được đăng ký tập trung cho catalog, content, commerce records, customer và review. Payment/shipment/installation/order không expose generic mutation route; payment totals/status, shipment status và installation status không thể bị sửa trực tiếp qua form CRUD. Order table dùng action xác nhận để gọi `OrderStatusService`; review table gọi `ReviewModerationService` cho approve/reject.
+
+Migration `2026_08_22_000600_create_audit_logs_table` bổ sung append-only audit trail theo actor và polymorphic auditable model. Observer theo dõi create/update/delete/restore trên các aggregate nhạy cảm, bỏ timestamps khỏi diff và redact password/token/secret/provider payload. Login/logout của staff được ghi riêng. Audit không thay thế application/security logs ở Phase 14.
+
+Filament SEO fields cho product/category/brand/article được giới hạn độ dài, slug dùng lowercase hyphen và unique validation; SKU product cũng unique. Canonical vẫn cho phép override URL hợp lệ, còn duplicate canonical cross-entity warning/preview nâng cao có thể bổ sung khi chốt production domain.
+
+Verification:
+
+- MySQL 8 migration: đạt, không phá dữ liệu development.
+- Full regression suite: **61 tests, 534 assertions**, đều đạt.
+- Phase 12 targeted suite sau login audit: **6 tests, 20 assertions**, đều đạt.
+- Pint: đạt sau khi format 255 files. TypeScript: đạt. Docker app image: build đạt.
+- Browser Filament: login/dashboard đạt; payment chỉ đọc; review pending hiển thị đúng Duyệt/Từ chối; không còn generic edit/delete ở hai luồng nhạy cảm này.
+
+Ranh giới có chủ ý: chưa thêm MFA/SSO, package RBAC động, audit viewer/export, object storage/CDN, customer review submission, mail provider production hay security headers. Các phần này thuộc Phase 13–14.

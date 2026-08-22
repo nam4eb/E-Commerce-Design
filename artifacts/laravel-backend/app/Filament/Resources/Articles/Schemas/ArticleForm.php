@@ -21,6 +21,8 @@ class ArticleForm
                 TextInput::make('title')
                     ->required(),
                 TextInput::make('slug')
+                    ->unique(ignoreRecord: true)
+                    ->regex('/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
                     ->required(),
                 Textarea::make('excerpt')
                     ->columnSpanFull(),
@@ -34,13 +36,15 @@ class ArticleForm
                     ->default('draft')
                     ->required(),
                 DateTimePicker::make('published_at'),
-                TextInput::make('seo_title'),
+                TextInput::make('seo_title')->maxLength(60),
                 Textarea::make('seo_description')
+                    ->maxLength(160)
                     ->columnSpanFull(),
                 TextInput::make('canonical_url')
                     ->url(),
-                TextInput::make('og_title'),
+                TextInput::make('og_title')->maxLength(95),
                 Textarea::make('og_description')
+                    ->maxLength(200)
                     ->columnSpanFull(),
                 FileUpload::make('og_image')
                     ->image(),

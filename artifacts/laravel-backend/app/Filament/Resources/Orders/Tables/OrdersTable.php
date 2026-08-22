@@ -2,6 +2,11 @@
 
 namespace App\Filament\Resources\Orders\Tables;
 
+use App\Enums\OrderStatus;
+use App\Models\Order;
+use App\Services\OrderStatusService;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
@@ -83,7 +88,22 @@ class OrdersTable
             ->filters([
                 TrashedFilter::make(),
             ])
-            ->recordActions([])
+            ->recordActions([
+                Action::make('transition')
+                    ->label('Chuyển trạng thái')
+                    ->icon('heroicon-o-arrow-path')
+                    ->visible(fn (Order $record): bool => auth()->user()?->hasAdminPermission('commerce.manage') === true
+                        && app(OrderStatusService::class)->allowedTargets($record) !== [])
+                    ->schema(fn (Order $record): array => [
+                        Select::make('status')
+                            ->label('Trạng thái mới')
+                            ->options(app(OrderStatusService::class)->allowedTargets($record))
+                            ->required(),
+                    ])
+                    ->requiresConfirmation()
+                    ->action(fn (Order $record, array $data) => app(OrderStatusService::class)
+                        ->transition($record, OrderStatus::from($data['status']))),
+            ])
             ->toolbarActions([]);
     }
 }

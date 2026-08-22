@@ -87,7 +87,7 @@ Kết quả nghiệm thu kỹ thuật:
 
 Phần còn lại ngoài Phase 11: business UAT/ký duyệt visual chính thức và security framework decision trước public launch.
 
-### Phase 12 — Filament production hardening (4–6 ngày)
+### Phase 12 — Filament production hardening — HOÀN THÀNH
 
 1. Thiết kế roles/permissions tối thiểu: super-admin, catalog-editor, content-editor, order-operator, support/read-only.
 2. Thêm policy cho từng resource và test truy cập/action; cân nhắc Filament Shield hoặc policy nội bộ.
@@ -96,7 +96,19 @@ Phần còn lại ngoài Phase 11: business UAT/ký duyệt visual chính thức
 5. Thêm audit log cho login admin, CRUD nhạy cảm, status transitions, promotions/coupons và settings.
 6. Hoàn thiện validation SEO, slug uniqueness, duplicate canonical warning và preview.
 
-Nghiệm thu: permission matrix test xanh; mọi thay đổi nhạy cảm truy vết được; không có đường tắt phá invariants commerce.
+Kết quả nghiệm thu kỹ thuật ngày 2026-08-22:
+
+- Permission matrix nội bộ gồm `admin` (super-admin tương thích), `catalog_editor`, `content_editor`, `order_operator`, `support`, `read_only` và `customer`.
+- Staff bắt buộc xác minh email mới vào Filament; customer và staff chưa xác minh nhận HTTP 403.
+- Policy theo domain giới hạn catalog/content/commerce/customer/review đúng least privilege; AddressPolicy vẫn bảo toàn ownership của storefront.
+- Order, payment, shipment và installation không còn generic create/edit/delete. Order chỉ chuyển trạng thái qua `OrderStatusService`; review chỉ duyệt/từ chối qua `ReviewModerationService`.
+- Audit log lưu actor, event, auditable model, before/after, IP, user agent và route; payload/token/password/secret được redact. Đăng nhập/đăng xuất staff cũng được audit.
+- Filament SEO forms kiểm tra slug lowercase-hyphen unique, độ dài SEO title/description và Open Graph metadata.
+- Migration `2026_08_22_000600_create_audit_logs_table` đã chạy thành công trên MySQL 8.
+- Full suite sau hardening: 61 tests/534 assertions đạt; targeted Phase 12 sau bổ sung login audit: 6 tests/20 assertions đạt. Pint, TypeScript và Docker build đạt.
+- Browser QA xác nhận dashboard hoạt động, payment read-only và review pending chỉ có domain actions “Duyệt/Từ chối”.
+
+Phần chuyển sang Phase 13: media pipeline/object storage, customer review submission + verified purchase, settings cache/jobs và production mail.
 
 ### Phase 13 — Media, reviews, settings và jobs (4–6 ngày)
 
@@ -159,4 +171,4 @@ Nghiệm thu: restore đã diễn tập; deploy/rollback diễn tập; productio
 
 ## 7. Thứ tự bắt đầu
 
-Slice tiếp theo là **Phase 12: Filament production hardening**, nhưng framework security decision phải được xử lý trước khi đưa hệ thống lên Internet. Visual UAT chính thức vẫn cần stakeholder ký duyệt dù smoke test desktop/mobile đã đạt.
+Slice tiếp theo là **Phase 13: Media, reviews, settings và jobs**, nhưng framework security decision vẫn phải được xử lý trước khi đưa hệ thống lên Internet. Visual UAT chính thức vẫn cần stakeholder ký duyệt dù smoke test desktop/mobile đã đạt.
