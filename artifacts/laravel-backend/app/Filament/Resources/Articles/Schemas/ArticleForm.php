@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\Articles\Schemas;
 
 use App\Enums\ArticleStatus;
+use App\Filament\Support\MediaUpload;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -29,8 +29,7 @@ class ArticleForm
                 Textarea::make('content')
                     ->required()
                     ->columnSpanFull(),
-                FileUpload::make('featured_image')
-                    ->image(),
+                MediaUpload::image('featured_image', 'articles'),
                 Select::make('status')
                     ->options(ArticleStatus::class)
                     ->default('draft')
@@ -46,8 +45,7 @@ class ArticleForm
                 Textarea::make('og_description')
                     ->maxLength(200)
                     ->columnSpanFull(),
-                FileUpload::make('og_image')
-                    ->image(),
+                MediaUpload::image('og_image', 'articles/seo'),
             ]);
     }
 }

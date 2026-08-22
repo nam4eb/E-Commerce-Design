@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\AdminRole;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -26,7 +27,7 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'], 'email' => ['required', 'email', 'max:255', 'unique:users'],
             'phone' => ['nullable', 'string', 'max:20', 'unique:users'], 'password' => ['required', 'confirmed', Password::defaults()],
         ]);
-        $user = User::create([...$data, 'password' => Hash::make($data['password'])]);
+        $user = User::create([...$data, 'password' => Hash::make($data['password']), 'role' => AdminRole::Customer]);
         event(new Registered($user));
         Auth::login($user);
         $request->session()->regenerate();

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ProductImages\Schemas;
 
+use App\Filament\Support\MediaUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -16,9 +17,7 @@ class ProductImageForm
                 Select::make('product_id')
                     ->relationship('product', 'name')
                     ->required(),
-                TextInput::make('url')
-                    ->url()
-                    ->required(),
+                MediaUpload::image('url', 'products/gallery')->required(),
                 TextInput::make('alt_text'),
                 Toggle::make('is_primary')
                     ->required(),

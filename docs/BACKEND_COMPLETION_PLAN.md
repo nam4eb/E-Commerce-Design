@@ -515,3 +515,13 @@ Verification:
 - Browser Filament: login/dashboard đạt; payment chỉ đọc; review pending hiển thị đúng Duyệt/Từ chối; không còn generic edit/delete ở hai luồng nhạy cảm này.
 
 Ranh giới có chủ ý: chưa thêm MFA/SSO, package RBAC động, audit viewer/export, object storage/CDN, customer review submission, mail provider production hay security headers. Các phần này thuộc Phase 13–14.
+
+## 17. Báo cáo thực hiện Phase 13 — Media, reviews, settings và jobs
+
+Phase 13 bổ sung media abstraction dùng `MEDIA_DISK`, upload validation dùng chung trong Filament, Docker persistent media volume và queue job tạo WebP responsive variants/metadata. Product detail nhận variant URLs qua Inertia và dùng `srcset`; remote seed URLs vẫn tương thích.
+
+Review storefront dùng route authenticated, validation/rate limit và unique product-user. Verified purchase tham chiếu đúng delivered order; review mới/sửa luôn pending. Product UI và Product JSON-LD chỉ dùng cùng tập approved reviews, do đó không công bố rating/review giả hoặc pending.
+
+`SettingsRepository` cache typed values và model event invalidate cache. Scheduler có promotion expiry, abandoned cart, low-stock report, settings warmup và sitemap cache refresh. Mail readiness fail trong production nếu còn log mailer/placeholder sender; provider thực tế vẫn cần credentials.
+
+Verification ngày 2026-08-22: clean MySQL 8 migrations và complete seed đạt; 10 settings được warm; TypeScript đạt; Vite client + Inertia SSR production build đạt; full isolated suite **67 tests/564 assertions** đạt. Browser desktop/mobile không có console error, H1/review UI hydrate đúng và viewport 390 px không tràn ngang. Local MySQL demo được restore bằng clean migration + full seed sau khi phát hiện một lệnh test Compose cũ chạm nhầm DB; quy trình test sau đó chuyển sang SQLite container cô lập.

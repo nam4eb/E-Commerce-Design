@@ -10,13 +10,12 @@ use App\Enums\ProductStatus;
 use App\Models\Cart;
 use App\Models\Coupon;
 use App\Models\Promotion;
-use App\Models\Setting;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 
 class PricingService
 {
-    private array $settingCache = [];
+    public function __construct(private readonly SettingsRepository $settings) {}
 
     public function quote(Cart $cart, PricingContext $context = new PricingContext): PricingResult
     {
@@ -147,14 +146,9 @@ class PricingService
     private function settings(array $keys): array
     {
         $defaults = config('commerce.pricing');
-        $missing = array_values(array_diff($keys, array_keys($this->settingCache)));
-        if ($missing !== []) {
-            $stored = Setting::query()->whereIn('key', $missing)->pluck('value', 'key');
-            foreach ($missing as $key) {
-                $this->settingCache[$key] = (int) ($stored[$key] ?? $defaults[$key]);
-            }
-        }
 
-        return collect($keys)->mapWithKeys(fn ($key) => [$key => $this->settingCache[$key]])->all();
+        return collect($keys)->mapWithKeys(fn ($key) => [
+            $key => (int) $this->settings->get($key, $defaults[$key]),
+        ])->all();
     }
 }

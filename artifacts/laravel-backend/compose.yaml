@@ -18,6 +18,13 @@ x-app-environment: &app-environment
   CACHE_STORE: redis
   SESSION_DRIVER: redis
   QUEUE_CONNECTION: redis
+  MEDIA_DISK: ${MEDIA_DISK:-public}
+  MAIL_MAILER: ${MAIL_MAILER:-log}
+  MAIL_HOST: ${MAIL_HOST:-127.0.0.1}
+  MAIL_PORT: ${MAIL_PORT:-2525}
+  MAIL_USERNAME: ${MAIL_USERNAME:-}
+  MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+  MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-hello@example.com}
   INERTIA_SSR_ENABLED: "true"
   INERTIA_SSR_URL: http://ssr:13714
   INERTIA_SSR_THROW_ON_ERROR: "true"
@@ -46,6 +53,8 @@ services:
       interval: 15s
       timeout: 5s
       retries: 5
+    volumes:
+      - media-data:/var/www/html/storage/app/public
 
   ssr:
     build:
@@ -63,6 +72,8 @@ services:
       target: app
     command: php artisan queue:work --sleep=1 --tries=3 --timeout=90
     environment: *app-environment
+    volumes:
+      - media-data:/var/www/html/storage/app/public
     depends_on:
       mysql:
         condition: service_healthy
@@ -115,3 +126,4 @@ services:
 volumes:
   mysql-data:
   redis-data:
+  media-data:

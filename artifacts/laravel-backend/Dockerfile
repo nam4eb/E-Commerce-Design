@@ -17,8 +17,8 @@ RUN composer dump-autoload --optimize --no-interaction --ignore-platform-req=ext
 
 FROM php:8.3-cli-bookworm AS php-base
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        libfreetype6-dev libicu-dev libjpeg62-turbo-dev libpng-dev libzip-dev unzip \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+        libfreetype6-dev libicu-dev libjpeg62-turbo-dev libpng-dev libwebp-dev libzip-dev unzip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) bcmath gd intl opcache pcntl pdo_mysql zip \
     && pecl install redis \
     && docker-php-ext-enable redis \
@@ -32,6 +32,7 @@ COPY --from=frontend /app/public/build /var/www/html/public/build
 COPY --from=frontend /app/bootstrap/ssr /var/www/html/bootstrap/ssr
 RUN touch .env \
     && mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache \
+    && ln -s ../storage/app/public public/storage \
     && chown -R www-data:www-data storage bootstrap/cache
 EXPOSE 8000
 CMD ["sh", "-lc", "cd public && exec php -S 0.0.0.0:8000 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php"]

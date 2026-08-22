@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Products\Schemas;
 
 use App\Enums\ProductStatus;
-use Filament\Forms\Components\FileUpload;
+use App\Filament\Support\MediaUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -81,8 +81,7 @@ class ProductForm
                 Textarea::make('og_description')
                     ->maxLength(200)
                     ->columnSpanFull(),
-                FileUpload::make('og_image')
-                    ->image(),
+                MediaUpload::image('og_image', 'products/seo'),
             ]);
     }
 }

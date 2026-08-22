@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Categories\Schemas;
 
-use Filament\Forms\Components\FileUpload;
+use App\Filament\Support\MediaUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -24,8 +24,7 @@ class CategoryForm
                     ->relationship('parent', 'name'),
                 Textarea::make('description')
                     ->columnSpanFull(),
-                FileUpload::make('image')
-                    ->image(),
+                MediaUpload::image('image', 'categories'),
                 TextInput::make('status')
                     ->required()
                     ->default('active'),
@@ -43,8 +42,7 @@ class CategoryForm
                 Textarea::make('og_description')
                     ->maxLength(200)
                     ->columnSpanFull(),
-                FileUpload::make('og_image')
-                    ->image(),
+                MediaUpload::image('og_image', 'categories/seo'),
             ]);
     }
 }

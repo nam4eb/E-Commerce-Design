@@ -56,12 +56,12 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(OrderPlaced::class, HandleOrderPlaced::class);
         Event::listen(OrderStatusChanged::class, NotifyOrderStatusChanged::class);
         Event::listen(Login::class, function (Login $event): void {
-            if ($event->user instanceof User && $event->user->role->isStaff()) {
+            if ($event->user instanceof User && $event->user->role?->isStaff() === true) {
                 $this->recordAdminAuthentication($event->user, 'admin_login');
             }
         });
         Event::listen(Logout::class, function (Logout $event): void {
-            if ($event->user instanceof User && $event->user->role->isStaff()) {
+            if ($event->user instanceof User && $event->user->role?->isStaff() === true) {
                 $this->recordAdminAuthentication($event->user, 'admin_logout');
             }
         });

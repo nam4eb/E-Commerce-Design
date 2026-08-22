@@ -112,6 +112,17 @@ Phần chuyển sang Phase 13: media pipeline/object storage, customer review su
 
 ### Phase 13 — Media, reviews, settings và jobs (4–6 ngày)
 
+**Trạng thái 2026-08-22: hoàn thành phần có thể triển khai không phụ thuộc credentials; còn nghiệm thu tích hợp nhà cung cấp.**
+
+- Media dùng `MEDIA_DISK` chung cho Filament/storefront, giới hạn MIME và 5 MB, persistent Docker volume, tương thích S3-compatible. Product image upload phát job tạo WebP responsive 320/640/1200, lưu metadata và storefront phát `srcset`. Ảnh seed từ Pexels vẫn được giữ; việc thay bằng ảnh SKU có quyền sử dụng cần business cung cấp asset/licence.
+- Khách hàng đăng nhập có thể gửi/cập nhật một review cho mỗi sản phẩm. Review luôn quay về `pending`; verified purchase chỉ được gắn với đơn `delivered`. Chỉ review `approved` xuất hiện trong UI, AggregateRating/Review JSON-LD; không sinh rating giả.
+- Settings được cache typed và tự invalidate khi save/delete. Sitemap payload có cache và lệnh refresh.
+- Scheduler đã có promotion expiry, expired-cart abandonment, low-stock log report, settings warmup và sitemap invalidation; tất cả idempotent và `withoutOverlapping`.
+- Mail có cấu hình environment và `mail:check-configuration`; local dùng log mailer. Việc gửi đến inbox thật chưa thể nghiệm thu khi chưa có provider credentials/sender domain.
+- Verification: clean MySQL 8 migrate + full seed đạt; TypeScript đạt; client/SSR Docker build đạt; full suite **67 tests/564 assertions** đạt. Browser desktop/mobile xác nhận hydration không lỗi, H1/review UI hiện diện và viewport 390 px không tràn ngang.
+
+Ranh giới: chưa tự động xóa orphan media để tránh xóa nhầm asset dùng chung; chưa thay ảnh có bản quyền, chưa chọn CDN/S3/mail provider và chưa diễn tập email inbox. Các mục này là production integration/UAT của Phase 15 sau khi business cung cấp credentials và policy.
+
 1. Chọn S3-compatible storage/CDN; cấu hình disk/directory/visibility, MIME/size/dimension validation.
 2. Tạo WebP/AVIF và responsive variants; queue image processing; dọn orphan; quy trình alt text.
 3. Thay placeholder bằng ảnh sản phẩm có quyền sử dụng và ánh xạ đúng SKU.

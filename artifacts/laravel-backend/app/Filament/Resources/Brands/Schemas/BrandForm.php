@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Brands\Schemas;
 
-use Filament\Forms\Components\FileUpload;
+use App\Filament\Support\MediaUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -21,7 +21,7 @@ class BrandForm
                     ->required(),
                 Textarea::make('description')
                     ->columnSpanFull(),
-                TextInput::make('logo'),
+                MediaUpload::image('logo', 'brands/logos'),
                 TextInput::make('status')
                     ->required()
                     ->default('active'),
@@ -35,8 +35,7 @@ class BrandForm
                 Textarea::make('og_description')
                     ->maxLength(200)
                     ->columnSpanFull(),
-                FileUpload::make('og_image')
-                    ->image(),
+                MediaUpload::image('og_image', 'brands/seo'),
             ]);
     }
 }

@@ -11,6 +11,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentWebhookController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PromotionController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ShippingWebhookController;
 use App\Http\Controllers\SitemapController;
@@ -45,6 +46,7 @@ Route::post('/thanh-toan', [CheckoutController::class, 'store'])->middleware('th
 Route::get('/don-hang/{order:number}', [OrderController::class, 'show'])->name('orders.show');
 Route::post('/don-hang/{order:number}/huy', [OrderController::class, 'cancel'])->middleware('throttle:5,1')->name('orders.cancel');
 Route::middleware('auth')->group(function () {
+    Route::post('/san-pham/{product}/danh-gia', [ReviewController::class, 'store'])->middleware('throttle:5,1')->name('reviews.store');
     Route::get('/tai-khoan/don-hang', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/tai-khoan/yeu-thich', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::put('/yeu-thich/{product}', [WishlistController::class, 'store'])->middleware('throttle:60,1')->name('wishlist.store');
