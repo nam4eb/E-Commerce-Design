@@ -5,7 +5,8 @@
     "scripts": {
         "build": "vite build && vite build --ssr",
         "build:ssr": "vite build --ssr",
-        "dev": "vite"
+        "dev": "vite",
+        "load:smoke": "node scripts/load-smoke.mjs"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",

@@ -11,6 +11,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentWebhookController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PromotionController;
+use App\Http\Controllers\ReadinessController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ShippingWebhookController;
@@ -24,6 +25,7 @@ use Inertia\Inertia;
 require __DIR__.'/auth.php';
 
 Route::get('/', HomeController::class)->name('home');
+Route::get('/ready', ReadinessController::class)->name('ready');
 Route::get('/thuong-hieu/{brand}', [BrandController::class, 'show'])->name('brands.show');
 Route::get('/tin-tuc', [ArticleController::class, 'index'])->name('articles.index');
 Route::get('/tin-tuc/{article}', [ArticleController::class, 'show'])->name('articles.show');
@@ -39,8 +41,8 @@ Route::delete('/gio-hang/items/{cartItem}', [CartController::class, 'destroy'])-
 Route::post('/gio-hang/coupon', [CartController::class, 'applyCoupon'])->middleware('throttle:20,1')->name('cart.coupon.store');
 Route::delete('/gio-hang/coupon', [CartController::class, 'removeCoupon'])->name('cart.coupon.destroy');
 Route::post('/api/v1/checkout/validate', CheckoutValidationController::class)->middleware('throttle:30,1')->name('api.checkout.validate');
-Route::post('/api/v1/webhooks/payments/{provider}', PaymentWebhookController::class)->middleware('throttle:120,1')->name('api.webhooks.payments');
-Route::post('/api/v1/webhooks/shipments/{provider}', ShippingWebhookController::class)->middleware('throttle:120,1')->name('api.webhooks.shipments');
+Route::post('/api/v1/webhooks/payments/{provider}', PaymentWebhookController::class)->middleware(['webhook.secure', 'throttle:120,1'])->name('api.webhooks.payments');
+Route::post('/api/v1/webhooks/shipments/{provider}', ShippingWebhookController::class)->middleware(['webhook.secure', 'throttle:120,1'])->name('api.webhooks.shipments');
 Route::get('/thanh-toan', [CheckoutController::class, 'create'])->name('checkout.create');
 Route::post('/thanh-toan', [CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.store');
 Route::get('/don-hang/{order:number}', [OrderController::class, 'show'])->name('orders.show');

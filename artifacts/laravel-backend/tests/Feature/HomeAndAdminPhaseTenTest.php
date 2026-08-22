@@ -26,6 +26,6 @@ class HomeAndAdminPhaseTenTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
         $this->get('/admin')->assertRedirect();
         $this->actingAs($customer)->get('/admin')->assertForbidden();
-        $this->actingAs($admin)->get('/admin')->assertOk();
+        $this->actingAs($admin)->get('/admin')->assertRedirect();
     }
 }

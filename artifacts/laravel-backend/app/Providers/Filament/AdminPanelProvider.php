@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -28,6 +29,11 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->brandName('Điện Máy 365 Admin')
             ->login()
+            ->profile()
+            ->multiFactorAuthentication(
+                AppAuthentication::make()->recoverable(),
+                isRequired: fn (): bool => config('security.admin_mfa_required'),
+            )
             ->colors([
                 'primary' => Color::Amber,
             ])

@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: artifacts/laravel-backend
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: bcmath, gd, intl, pdo_sqlite, zip
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: artifacts/laravel-backend/package-lock.json
+      - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: composer audit --locked --format=plain
+      - run: ./vendor/bin/pint --test
+      - run: npm ci
+      - run: npm audit --omit=dev --audit-level=high
+      - run: npx tsc --noEmit
+      - run: npm run build
+      - run: cp .env.example .env && php artisan key:generate
+      - run: php artisan test --compact
+      - run: composer show --locked --format=json > dependency-inventory.json
+      - run: npm sbom --omit=dev --sbom-format=cyclonedx > npm-sbom.cdx.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dependency-inventory
+          path: |
+            artifacts/laravel-backend/dependency-inventory.json
+            artifacts/laravel-backend/npm-sbom.cdx.json
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2

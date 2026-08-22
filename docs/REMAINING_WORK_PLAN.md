@@ -133,7 +133,7 @@ Ranh giới: chưa tự động xóa orphan media để tránh xóa nhầm asset
 
 Nghiệm thu: upload an toàn; ảnh responsive hoạt động; job retry/failure quan sát được; email thật đến inbox test; không có fake rating trong HTML/JSON-LD.
 
-### Phase 14 — Security, observability và performance (4–6 ngày)
+### Phase 14 — Security, observability và performance — HOÀN THÀNH NỀN TẢNG
 
 1. Thực hiện framework decision: ưu tiên nâng lên Laravel release còn được vá và kiểm tra Filament/Inertia compatibility; nếu buộc giữ Laravel 11 phải có risk acceptance và compensating controls cụ thể.
 2. Chạy `composer audit`, `npm audit`/scanner tương đương trong CI; secret scan và SBOM/dependency inventory.
@@ -144,6 +144,18 @@ Nghiệm thu: upload an toàn; ảnh responsive hoạt động; job retry/failur
 7. Automated accessibility and visual regression smoke tests.
 
 Nghiệm thu: dependency audit không còn blocker chưa chấp nhận; security headers/cookies được test; load/SLO đạt; alert được diễn tập.
+
+Kết quả thực hiện ngày 2026-08-22:
+
+- Nâng Laravel 11 lên **Laravel 12.67.0** vì Laravel 11 đã hết thời hạn security fixes và lock cũ có advisory mức high. Filament 4, Inertia, React 19 và SSR vẫn tương thích; `composer audit` và production `npm audit` đều 0 advisory.
+- Bổ sung CI quality/security gate: locked install, Composer/NPM audit, Pint, TypeScript, client/SSR build, full tests, Gitleaks và CycloneDX SBOM artifact.
+- Middleware toàn cục phát CSP, anti-framing, nosniff, referrer/permissions/COOP, HSTS trong production HTTPS và `X-Request-ID`; trang account/cart/auth/admin dùng no-store/private. Trusted proxy chỉ nhận allow-list từ environment.
+- Webhook bắt buộc JSON, giới hạn raw payload trước khi verify chữ ký. Filament admin dùng TOTP MFA bắt buộc, recovery codes mã hóa và không serialize.
+- `/ready` kiểm tra database/cache/queue; `ops:monitor` kiểm tra queue, failed jobs, failed webhook và payment/order mismatch, chạy mỗi 5 phút. Alert drill đã phát hiện đúng 12 failed jobs lịch sử trên DB development; dữ liệu này được giữ để operator điều tra.
+- Query budgets tự động: home ≤15, category ≤16, product ≤14. MySQL `EXPLAIN` xác nhận composite catalog index; bổ sung index `(category_id,status,created_at)` và `(brand_id,status,created_at)` cho listing sort.
+- Load smoke local: **50 requests, 0 failures, p95 368 ms**, dưới budget 1.500 ms. Full isolated suite: **76 tests, 600 assertions**.
+
+Ranh giới: Sentry/OpenTelemetry backend, alert destination, production TLS/HSTS, secret values, email/S3/provider integrations và browser visual/accessibility CI cần môi trường staging/credentials ở Phase 15. Local `APP_DEBUG=true`; production bắt buộc `APP_ENV=production`, `APP_DEBUG=false`, HTTPS và secure cookies.
 
 ### Phase 15 — Deployment, UAT và go-live (4–6 ngày)
 
@@ -165,7 +177,7 @@ Nghiệm thu: restore đã diễn tập; deploy/rollback diễn tập; productio
 4. S3/CDN/image provider và quyền sử dụng ảnh sản phẩm.
 5. Vai trò nhân viên thực tế và ai được duyệt giá, coupon, review, trạng thái đơn.
 6. Chính sách review, đổi trả, vận chuyển, bảo hành và thông tin pháp nhân phục vụ SEO/Merchant Center.
-7. Quyết định nâng Laravel khỏi version 11 trước launch.
+7. ~~Quyết định nâng Laravel khỏi version 11 trước launch.~~ Đã chốt và nâng lên Laravel 12.67.0 trong Phase 14.
 
 ## 6. Ước lượng
 
@@ -182,4 +194,4 @@ Nghiệm thu: restore đã diễn tập; deploy/rollback diễn tập; productio
 
 ## 7. Thứ tự bắt đầu
 
-Slice tiếp theo là **Phase 13: Media, reviews, settings và jobs**, nhưng framework security decision vẫn phải được xử lý trước khi đưa hệ thống lên Internet. Visual UAT chính thức vẫn cần stakeholder ký duyệt dù smoke test desktop/mobile đã đạt.
+Slice tiếp theo là **Phase 15: Deployment, staging UAT và go-live**. Visual UAT chính thức vẫn cần stakeholder ký duyệt dù smoke test desktop/mobile đã đạt.

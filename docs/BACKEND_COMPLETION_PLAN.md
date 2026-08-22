@@ -525,3 +525,15 @@ Review storefront dùng route authenticated, validation/rate limit và unique pr
 `SettingsRepository` cache typed values và model event invalidate cache. Scheduler có promotion expiry, abandoned cart, low-stock report, settings warmup và sitemap cache refresh. Mail readiness fail trong production nếu còn log mailer/placeholder sender; provider thực tế vẫn cần credentials.
 
 Verification ngày 2026-08-22: clean MySQL 8 migrations và complete seed đạt; 10 settings được warm; TypeScript đạt; Vite client + Inertia SSR production build đạt; full isolated suite **67 tests/564 assertions** đạt. Browser desktop/mobile không có console error, H1/review UI hydrate đúng và viewport 390 px không tràn ngang. Local MySQL demo được restore bằng clean migration + full seed sau khi phát hiện một lệnh test Compose cũ chạm nhầm DB; quy trình test sau đó chuyển sang SQLite container cô lập.
+
+## 18. Báo cáo thực hiện Phase 14 — Security, observability và performance
+
+- Framework được nâng từ Laravel 11 lên **12.67.0** để trở lại nhánh còn nhận security fixes. Filament 4/Inertia/React 19 và SSR build không cần thay UI.
+- Dependency gates gồm Composer/NPM audit, Gitleaks và CycloneDX SBOM trong CI. Kết quả hiện tại: 0 Composer advisory và 0 NPM production vulnerability.
+- HTTP hardening gồm CSP, HSTS production HTTPS, anti-framing, nosniff, referrer/permissions/COOP, cache policy cho dữ liệu riêng tư, trusted proxies allow-list và request correlation ID.
+- Filament admin bắt buộc TOTP MFA có recovery codes mã hóa. Webhook fail sớm nếu sai content type hoặc vượt payload limit, trước lớp HMAC/replay protection hiện hữu.
+- Readiness endpoint kiểm tra DB/cache/queue. Scheduled `ops:monitor` phát hiện queue backlog, failed jobs/webhooks và payment mismatch; alert drill local đã báo đúng 12 failed jobs lịch sử.
+- Feature tests khóa query budgets home/category/product. MySQL `EXPLAIN` dùng index catalog; migration bổ sung sort indexes theo category/brand + status + created time.
+- Docker image gồm Laravel 12, client và Inertia SSR build thành công. Full SQLite suite đạt **76 tests/600 assertions**. Local load smoke đạt **50 requests, 0 failures, p95 368 ms** với budget 1.500 ms.
+
+Phase 14 không tự cấu hình dịch vụ giám sát/alert bên ngoài khi chưa có DSN hoặc destination, không xóa failed jobs lịch sử và không bật HSTS trên HTTP local. Các phần này cùng TLS/reverse proxy, staging visual/accessibility regression và business UAT thuộc Phase 15.
