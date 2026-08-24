@@ -45,6 +45,9 @@ x-app-environment: &app-environment
   FACEBOOK_CLIENT_ID: ${FACEBOOK_CLIENT_ID:-}
   FACEBOOK_CLIENT_SECRET: ${FACEBOOK_CLIENT_SECRET:-}
   FACEBOOK_REDIRECT_URI: ${FACEBOOK_REDIRECT_URI:-http://localhost:8000/dang-nhap/facebook/callback}
+  CHATBOT_ENABLED: ${CHATBOT_ENABLED:-true}
+  CHATBOT_SERVICE_URL: http://chatbot:8001
+  CHATBOT_SERVICE_SECRET: ${CHATBOT_SERVICE_SECRET:-local-chatbot-secret}
 
 services:
   app:
@@ -105,6 +108,23 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+
+  chatbot:
+    build: ./services/chatbot
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-dienmay365}
+      DB_USERNAME: ${CHATBOT_DB_USERNAME:-dienmay365}
+      DB_PASSWORD: ${CHATBOT_DB_PASSWORD:-local-secret}
+      CHATBOT_SERVICE_SECRET: ${CHATBOT_SERVICE_SECRET:-local-chatbot-secret}
+      PUBLIC_APP_URL: ${APP_URL:-http://localhost:8000}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.4-mini}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
 
   mysql:
     image: mysql:8.0

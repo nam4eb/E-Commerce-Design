@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { Menu, Search, ShoppingCart, UserRound, Zap } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { CompareTray } from '../Components/Compare';
+import AiChatbot from '../Components/AiChatbot';
 
 export default function StoreLayout({ children }: PropsWithChildren) {
     const page = usePage<{ auth: { user: { name: string } | null }; commerce: { cartCount: number } }>().props;
@@ -21,5 +22,6 @@ export default function StoreLayout({ children }: PropsWithChildren) {
         {children}
         <footer className="mt-16 bg-[#092f61] py-10 text-white"><div className="container-store"><b className="font-display text-xl">ĐIỆN MÁY 365</b><p className="mt-2 text-sm text-blue-100">Thiết bị điện máy chính hãng · Giao lắp tận tâm</p></div></footer>
         <CompareTray/>
+        <AiChatbot/>
     </>;
 }

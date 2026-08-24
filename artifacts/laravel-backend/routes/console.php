@@ -98,6 +98,9 @@ Artisan::command('ops:production-check {--runtime}', function () {
         'facebook_oauth' => filled(config('services.facebook.client_id'))
             && filled(config('services.facebook.client_secret'))
             && str_starts_with((string) config('services.facebook.redirect'), 'https://'),
+        'chatbot_service' => config('chatbot.enabled') === true
+            && filled(config('chatbot.url'))
+            && filled(config('chatbot.secret')),
     ];
 
     if ($this->option('runtime')) {

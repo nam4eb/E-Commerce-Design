@@ -39,6 +39,9 @@ x-app-environment: &app-environment
   FACEBOOK_CLIENT_ID: ${FACEBOOK_CLIENT_ID:?Facebook OAuth app ID is required}
   FACEBOOK_CLIENT_SECRET: ${FACEBOOK_CLIENT_SECRET:?Facebook OAuth app secret is required}
   FACEBOOK_REDIRECT_URI: ${FACEBOOK_REDIRECT_URI:?Facebook OAuth redirect URI is required}
+  CHATBOT_ENABLED: "true"
+  CHATBOT_SERVICE_URL: http://chatbot:8001
+  CHATBOT_SERVICE_SECRET: ${CHATBOT_SERVICE_SECRET:?Chatbot service secret is required}
 
 services:
   web:
@@ -94,6 +97,23 @@ services:
     depends_on:
       mysql: { condition: service_healthy }
       redis: { condition: service_healthy }
+    restart: unless-stopped
+
+  chatbot:
+    image: ${CHATBOT_IMAGE:-dienmay365-chatbot}:${RELEASE_TAG:-local}
+    build: ./services/chatbot
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:?DB_DATABASE is required}
+      DB_USERNAME: ${CHATBOT_DB_USERNAME:?Read-only chatbot DB username is required}
+      DB_PASSWORD: ${CHATBOT_DB_PASSWORD:?Read-only chatbot DB password is required}
+      CHATBOT_SERVICE_SECRET: ${CHATBOT_SERVICE_SECRET:?Chatbot service secret is required}
+      PUBLIC_APP_URL: ${APP_URL:?APP_URL is required}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?OpenAI API key is required}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.4-mini}
+    depends_on:
+      mysql: { condition: service_healthy }
     restart: unless-stopped
 
   mysql:

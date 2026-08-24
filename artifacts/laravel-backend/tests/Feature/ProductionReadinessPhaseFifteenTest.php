@@ -32,6 +32,7 @@ class ProductionReadinessPhaseFifteenTest extends TestCase
             'services.shipping_webhooks.secrets.manual' => 'shipping-secret',
             'services.google' => ['client_id' => 'google-id', 'client_secret' => 'google-secret', 'redirect' => 'https://shop.example.com/dang-nhap/google/callback'],
             'services.facebook' => ['client_id' => 'facebook-id', 'client_secret' => 'facebook-secret', 'redirect' => 'https://shop.example.com/dang-nhap/facebook/callback'],
+            'chatbot' => ['enabled' => true, 'url' => 'http://chatbot:8001', 'secret' => 'chatbot-secret'],
         ]);
 
         $this->artisan('ops:production-check')->assertSuccessful();

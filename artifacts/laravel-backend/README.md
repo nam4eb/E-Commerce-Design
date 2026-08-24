@@ -29,6 +29,20 @@ Khai báo các URL này trong Google Cloud Console OAuth client và Facebook Log
 
 OAuth dùng session state của Socialite. Access token không được lưu. Tài khoản mới cần email hợp lệ và được đánh dấu đã xác minh; hệ thống không tự liên kết OAuth vào email đã tồn tại để tránh account takeover. Người dùng đó tiếp tục đăng nhập bằng phương thức cũ cho tới khi có luồng liên kết tài khoản có re-authentication.
 
+## Trợ lý mua sắm AI
+
+Chatbot gồm Laravel proxy `POST /api/v1/chat` và Python FastAPI private service tại `services/chatbot`. Python chỉ truy xuất sản phẩm active và bài viết đã xuất bản, đóng gói ngữ cảnh giới hạn rồi gọi OpenAI Responses API. Khi chưa có `OPENAI_API_KEY`, service trả lời dự phòng trực tiếp từ catalogue.
+
+Cấu hình `CHATBOT_SERVICE_SECRET`, `OPENAI_API_KEY` và `OPENAI_MODEL`. Production nên dùng MySQL user chỉ có quyền đọc:
+
+```sql
+CREATE USER 'dienmay365_chatbot'@'%' IDENTIFIED BY 'replace-with-a-strong-secret';
+GRANT SELECT ON dienmay365.* TO 'dienmay365_chatbot'@'%';
+FLUSH PRIVILEGES;
+```
+
+Khởi chạy bằng `docker compose up -d --build chatbot app ssr`. Browser không nhận model API key hoặc secret nội bộ.
+
 ## Kiểm tra
 
 ```bash

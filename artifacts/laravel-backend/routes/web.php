@@ -4,6 +4,7 @@ use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CheckoutValidationController;
 use App\Http\Controllers\HomeController;
@@ -33,6 +34,7 @@ Route::get('/khuyen-mai', [PromotionController::class, 'index'])->name('promotio
 Route::get('/so-sanh', fn () => Inertia::render('Compare/Index'))->name('compare.index');
 Route::get('/tim-kiem', [SearchController::class, 'index'])->name('search');
 Route::get('/api/v1/search/suggestions', [SearchController::class, 'suggestions'])->middleware('throttle:30,1')->name('api.search.suggestions');
+Route::post('/api/v1/chat', ChatController::class)->middleware('throttle:15,1')->name('api.chat');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('/gio-hang', [CartController::class, 'show'])->name('cart.show');
 Route::post('/gio-hang/items', [CartController::class, 'store'])->middleware('throttle:60,1')->name('cart.items.store');
