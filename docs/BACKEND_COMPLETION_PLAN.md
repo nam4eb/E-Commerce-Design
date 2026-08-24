@@ -537,3 +537,13 @@ Verification ngày 2026-08-22: clean MySQL 8 migrations và complete seed đạt
 - Docker image gồm Laravel 12, client và Inertia SSR build thành công. Full SQLite suite đạt **76 tests/600 assertions**. Local load smoke đạt **50 requests, 0 failures, p95 368 ms** với budget 1.500 ms.
 
 Phase 14 không tự cấu hình dịch vụ giám sát/alert bên ngoài khi chưa có DSN hoặc destination, không xóa failed jobs lịch sử và không bật HSTS trên HTTP local. Các phần này cùng TLS/reverse proxy, staging visual/accessibility regression và business UAT thuộc Phase 15.
+
+## 19. Báo cáo thực hiện Phase 15 — Production delivery foundation
+
+Production runtime được tách khỏi development: PHP-FPM app không dùng built-in server; Nginx image phục vụ static assets và FastCGI; MySQL/Redis chỉ nằm internal network; Redis yêu cầu password và AOF. Compose production yêu cầu explicit secrets/domain/mail/media/proxy configuration và application gate từ chối unsafe defaults.
+
+CI vẫn chạy lint/test/build/security gates. Release workflow tạo ba immutable GHCR images (app/web/SSR) có SBOM/provenance và dừng ở protected staging approval boundary. Deploy scripts thực hiện preflight, backup, maintenance, isolated migration, optimize, queue/SSR restart và smoke. Rollback chỉ đổi image tag, không reverse schema.
+
+Rehearsal local hoàn tất 12 migrations, 35-product seed, 17/17 production checks, Nginx/PHP-FPM/SSR raw HTML, secure cookies/security headers, backup restore đối chiếu 35/35 products và 12 migration records. Rollback tag rehearsal giữ toàn bộ routes xanh; load smoke đạt 50 requests/0 failures/p95 183 ms. Shell syntax checks cho năm production scripts đạt.
+
+Go-live còn bị chặn hợp lệ bởi dữ liệu ngoài repository: domain và certificate thật, exact proxy CIDR, SMTP/S3/payment/shipping sandbox credentials, managed PITR, external monitoring/alert destination, Search Console/analytics consent/legal content và stakeholder UAT sign-off. Không có claim production launch trước khi các gate trong `PRODUCTION_RUNBOOK.md` được ký.

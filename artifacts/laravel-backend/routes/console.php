@@ -74,6 +74,45 @@ Artisan::command('ops:monitor', function () {
     return $unhealthy ? 1 : 0;
 })->purpose('Check queue, failed jobs, webhooks and payment/order consistency');
 
+Artisan::command('ops:production-check {--runtime}', function () {
+    $checks = [
+        'environment' => app()->isProduction(),
+        'debug_disabled' => config('app.debug') === false,
+        'https_url' => str_starts_with((string) config('app.url'), 'https://'),
+        'secure_session' => config('session.secure') === true,
+        'encrypted_session' => config('session.encrypt') === true,
+        'redis_session' => config('session.driver') === 'redis',
+        'redis_cache' => config('cache.default') === 'redis',
+        'redis_queue' => config('queue.default') === 'redis',
+        'admin_mfa' => config('security.admin_mfa_required') === true,
+        'csp_enforced' => config('security.csp_report_only') === false,
+        'trusted_proxies' => config('security.trusted_proxies') !== [],
+        'production_mail' => config('mail.default') !== 'log'
+            && config('mail.from.address') !== 'hello@example.com',
+        'object_storage' => config('media.disk') === 's3',
+        'payment_webhook_secret' => filled(config('services.payment_webhooks.secrets.manual')),
+        'shipping_webhook_secret' => filled(config('services.shipping_webhooks.secrets.manual')),
+    ];
+
+    if ($this->option('runtime')) {
+        try {
+            DB::select('SELECT 1');
+            Cache::put('ops.production-check', now()->timestamp, 10);
+            $checks['database'] = true;
+            $checks['cache'] = Cache::has('ops.production-check');
+        } catch (Throwable $exception) {
+            report($exception);
+            $checks['runtime'] = false;
+        }
+    }
+
+    foreach ($checks as $name => $passed) {
+        $this->line(sprintf('[%s] %s', $passed ? 'PASS' : 'FAIL', $name));
+    }
+
+    return in_array(false, $checks, true) ? 1 : 0;
+})->purpose('Fail closed when production configuration or runtime dependencies are unsafe');
+
 Schedule::command('commerce:expire-promotions')->hourly()->withoutOverlapping();
 Schedule::command('commerce:prune-carts')->dailyAt('02:15')->withoutOverlapping();
 Schedule::command('commerce:low-stock-report')->dailyAt('07:00')->withoutOverlapping();

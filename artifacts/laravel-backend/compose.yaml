@@ -46,6 +46,7 @@ services:
       context: .
       target: app
     environment: *app-environment
+    command: sh -lc "cd public && exec php -S 0.0.0.0:8000 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php"
     ports:
       - "8000:8000"
     depends_on:

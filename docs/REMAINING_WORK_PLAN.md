@@ -157,7 +157,7 @@ Kết quả thực hiện ngày 2026-08-22:
 
 Ranh giới: Sentry/OpenTelemetry backend, alert destination, production TLS/HSTS, secret values, email/S3/provider integrations và browser visual/accessibility CI cần môi trường staging/credentials ở Phase 15. Local `APP_DEBUG=true`; production bắt buộc `APP_ENV=production`, `APP_DEBUG=false`, HTTPS và secure cookies.
 
-### Phase 15 — Deployment, UAT và go-live (4–6 ngày)
+### Phase 15 — Deployment, UAT và go-live — HOÀN THÀNH PHẦN KỸ THUẬT CÓ THỂ DIỄN TẬP LOCAL
 
 1. Production stack: reverse proxy/TLS, PHP-FPM, MySQL 8, Redis, queue workers, scheduler, Inertia SSR, object storage/CDN.
 2. CI/CD: locked install → lint/static checks → tests → client/SSR build → immutable artifact/image → staging → approval → production.
@@ -168,6 +168,19 @@ Ranh giới: Sentry/OpenTelemetry backend, alert destination, production TLS/HST
 7. UAT business + SEO + responsive; go/no-go checklist và post-launch monitoring 24–72 giờ.
 
 Nghiệm thu: restore đã diễn tập; deploy/rollback diễn tập; production smoke xanh; stakeholder ký UAT; dashboard/alerts hoạt động.
+
+Kết quả kỹ thuật ngày 2026-08-24:
+
+- Tạo production topology riêng: managed TLS/CDN → Nginx → PHP-FPM Laravel, MySQL 8, Redis password/AOF, queue, scheduler và Inertia SSR. MySQL/Redis không publish host ports.
+- Production configuration fail-closed bằng Compose required variables và `ops:production-check`; gate rehearsal đạt 17/17 checks gồm HTTPS, debug off, secure/encrypted session, Redis, MFA, CSP, trusted proxy, production mail, S3 và webhook secrets.
+- Tạo immutable app/web/SSR release workflow lên GHCR với provenance/SBOM và protected staging environment boundary. Production image dùng `composer --no-dev`; Docker test target tách riêng.
+- Bổ sung Flysystem S3/AWS SDK thực tế thay vì chỉ có config S3 hình thức.
+- Tạo scripts deploy, backup/checksum, confirmed restore, application rollback và production route/raw SSR smoke. Migration dùng `--isolated`; rollback database bị cấm theo forward-fix policy.
+- Rehearsal MySQL mới chạy đủ 12 migrations và seed 35 sản phẩm. Backup được restore vào database phụ: source/restored đều 35 sản phẩm và 12 migration records.
+- Immutable rollback rehearsal chuyển app/web/SSR sang tag `rehearsal-prev`; route matrix đạt 200/404 đúng, load 50 requests có 0 failure và p95 183 ms.
+- Nginx raw response xác nhận SSR HTML, metadata, Organization JSON-LD, CSP, secure cookies và request correlation ID.
+
+Chưa thể tuyên bố go-live: production domain/TLS/CDN, provider credentials, managed backup/PITR, alert destination, Search Console/Bing, legal/analytics consent và chữ ký UAT của stakeholder vẫn là external gates. Xem `docs/PRODUCTION_RUNBOOK.md`.
 
 ## 5. Quyết định business cần chốt
 

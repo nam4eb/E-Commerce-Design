@@ -34,6 +34,7 @@ jobs:
       - run: npm audit --omit=dev --audit-level=high
       - run: npx tsc --noEmit
       - run: npm run build
+      - run: docker build --target test -t dienmay365-test:${{ github.sha }} .
       - run: cp .env.example .env && php artisan key:generate
       - run: php artisan test --compact
       - run: composer show --locked --format=json > dependency-inventory.json

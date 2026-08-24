@@ -1,0 +1,124 @@
+name: dienmay365-production
+
+x-app-environment: &app-environment
+  APP_NAME: Điện Máy 365
+  APP_ENV: production
+  APP_KEY: ${APP_KEY:?APP_KEY is required}
+  APP_DEBUG: "false"
+  APP_URL: ${APP_URL:?APP_URL must be an HTTPS URL}
+  LOG_CHANNEL: stderr
+  LOG_LEVEL: ${LOG_LEVEL:-warning}
+  DB_CONNECTION: mysql
+  DB_HOST: mysql
+  DB_PORT: 3306
+  DB_DATABASE: ${DB_DATABASE:?DB_DATABASE is required}
+  DB_USERNAME: ${DB_USERNAME:?DB_USERNAME is required}
+  DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+  REDIS_CLIENT: phpredis
+  REDIS_HOST: redis
+  REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+  CACHE_STORE: redis
+  SESSION_DRIVER: redis
+  SESSION_SECURE_COOKIE: "true"
+  SESSION_ENCRYPT: "true"
+  QUEUE_CONNECTION: redis
+  MEDIA_DISK: ${MEDIA_DISK:?MEDIA_DISK must be an object-storage disk}
+  MAIL_MAILER: ${MAIL_MAILER:?MAIL_MAILER is required}
+  MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:?MAIL_FROM_ADDRESS is required}
+  INERTIA_SSR_ENABLED: "true"
+  INERTIA_SSR_URL: http://ssr:13714
+  INERTIA_SSR_THROW_ON_ERROR: "true"
+  TRUSTED_PROXIES: ${TRUSTED_PROXIES:?TRUSTED_PROXIES is required}
+  ADMIN_MFA_REQUIRED: "true"
+  CSP_REPORT_ONLY: "false"
+  MANUAL_PAYMENT_WEBHOOK_SECRET: ${MANUAL_PAYMENT_WEBHOOK_SECRET:?Payment webhook secret is required}
+  MANUAL_SHIPPING_WEBHOOK_SECRET: ${MANUAL_SHIPPING_WEBHOOK_SECRET:?Shipping webhook secret is required}
+
+services:
+  web:
+    image: ${WEB_IMAGE:-dienmay365-web}:${RELEASE_TAG:-local}
+    build:
+      context: .
+      target: web
+    ports:
+      - "${HTTP_PORT:-8080}:8080"
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+
+  app:
+    image: ${APP_IMAGE:-dienmay365-app}:${RELEASE_TAG:-local}
+    build:
+      context: .
+      target: app
+    environment: *app-environment
+    expose: ["9000"]
+    depends_on:
+      mysql: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      ssr: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "php", "artisan", "ops:production-check", "--runtime"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  ssr:
+    image: ${SSR_IMAGE:-dienmay365-ssr}:${RELEASE_TAG:-local}
+    build: { context: ., target: ssr }
+    environment: { NODE_ENV: production, PORT: 13714 }
+    expose: ["13714"]
+    restart: unless-stopped
+
+  queue:
+    image: ${APP_IMAGE:-dienmay365-app}:${RELEASE_TAG:-local}
+    command: php artisan queue:work --sleep=1 --tries=3 --timeout=90 --max-time=3600
+    environment: *app-environment
+    depends_on:
+      mysql: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    restart: unless-stopped
+
+  scheduler:
+    image: ${APP_IMAGE:-dienmay365-app}:${RELEASE_TAG:-local}
+    command: php artisan schedule:work
+    environment: *app-environment
+    depends_on:
+      mysql: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:?DB_DATABASE is required}
+      MYSQL_USER: ${DB_USERNAME:?DB_USERNAME is required}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD is required}
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --slow-query-log=1 --long-query-time=1
+    volumes: ["mysql-data:/var/lib/mysql"]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:?REDIS_PASSWORD is required}"]
+    volumes: ["redis-data:/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+  redis-data:

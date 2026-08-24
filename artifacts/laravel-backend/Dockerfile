@@ -8,14 +8,21 @@ COPY resources ./resources
 COPY vite.config.ts tsconfig.json ./
 RUN npm run build
 
-FROM composer:2 AS vendor
+FROM composer:2 AS vendor-prod
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --prefer-dist --no-scripts --ignore-platform-req=ext-intl
+COPY . .
+RUN composer dump-autoload --no-dev --optimize --no-interaction --ignore-platform-req=ext-intl
+
+FROM composer:2 AS vendor-test
 WORKDIR /app
 COPY composer.json composer.lock ./
 RUN composer install --no-interaction --prefer-dist --no-scripts --ignore-platform-req=ext-intl
 COPY . .
 RUN composer dump-autoload --optimize --no-interaction --ignore-platform-req=ext-intl
 
-FROM php:8.3-cli-bookworm AS php-base
+FROM php:8.3-fpm-bookworm AS php-base
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libfreetype6-dev libicu-dev libjpeg62-turbo-dev libpng-dev libwebp-dev libzip-dev unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
@@ -27,7 +34,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 FROM php-base AS app
-COPY --from=vendor /app /var/www/html
+COPY --from=vendor-prod /app /var/www/html
 COPY --from=frontend /app/public/build /var/www/html/public/build
 COPY --from=frontend /app/bootstrap/ssr /var/www/html/bootstrap/ssr
 RUN touch .env \
@@ -35,7 +42,23 @@ RUN touch .env \
     && ln -s ../storage/app/public public/storage \
     && chown -R www-data:www-data storage bootstrap/cache
 EXPOSE 8000
-CMD ["sh", "-lc", "cd public && exec php -S 0.0.0.0:8000 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php"]
+EXPOSE 9000
+CMD ["php-fpm", "-F"]
+
+FROM php-base AS test
+COPY --from=vendor-test /app /var/www/html
+COPY --from=frontend /app/public/build /var/www/html/public/build
+COPY --from=frontend /app/bootstrap/ssr /var/www/html/bootstrap/ssr
+RUN touch .env \
+    && mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache \
+    && ln -s ../storage/app/public public/storage \
+    && chown -R www-data:www-data storage bootstrap/cache
+CMD ["php", "artisan", "test", "--compact"]
+
+FROM nginx:1.27-alpine AS web
+COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=app /var/www/html/public /var/www/html/public
+EXPOSE 8080
 
 FROM node:22-bookworm-slim AS ssr
 WORKDIR /app
