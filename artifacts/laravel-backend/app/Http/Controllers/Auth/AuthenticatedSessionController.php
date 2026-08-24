@@ -15,7 +15,11 @@ class AuthenticatedSessionController extends Controller
 {
     public function create(): Response
     {
-        return Inertia::render('Auth/Login', ['status' => session('status')]);
+        return Inertia::render('Auth/Login', [
+            'status' => session('status'),
+            'oauthError' => session('oauth_error'),
+            'oauthProviders' => SocialLoginController::configuredProviders(),
+        ]);
     }
 
     public function store(LoginRequest $request, CartService $carts): RedirectResponse

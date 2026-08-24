@@ -18,6 +18,17 @@ docker compose up -d queue scheduler
 
 Các biến Docker có thể đặt trong `.env` theo mẫu `.env.docker.example`. Không dùng mật khẩu mặc định của môi trường local cho staging/production.
 
+## Google và Facebook OAuth
+
+Ứng dụng dùng Laravel Socialite và chỉ hiển thị provider khi đủ client ID, client secret và redirect URI. Callback chính xác:
+
+- Google: `{APP_URL}/dang-nhap/google/callback`
+- Facebook: `{APP_URL}/dang-nhap/facebook/callback`
+
+Khai báo các URL này trong Google Cloud Console OAuth client và Facebook Login app settings, sau đó cấu hình `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, `FACEBOOK_CLIENT_ID`, `FACEBOOK_CLIENT_SECRET`, `FACEBOOK_REDIRECT_URI`. Production bắt buộc HTTPS và redirect URI phải khớp tuyệt đối với provider console.
+
+OAuth dùng session state của Socialite. Access token không được lưu. Tài khoản mới cần email hợp lệ và được đánh dấu đã xác minh; hệ thống không tự liên kết OAuth vào email đã tồn tại để tránh account takeover. Người dùng đó tiếp tục đăng nhập bằng phương thức cũ cho tới khi có luồng liên kết tài khoản có re-authentication.
+
 ## Kiểm tra
 
 ```bash

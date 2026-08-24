@@ -92,6 +92,12 @@ Artisan::command('ops:production-check {--runtime}', function () {
         'object_storage' => config('media.disk') === 's3',
         'payment_webhook_secret' => filled(config('services.payment_webhooks.secrets.manual')),
         'shipping_webhook_secret' => filled(config('services.shipping_webhooks.secrets.manual')),
+        'google_oauth' => filled(config('services.google.client_id'))
+            && filled(config('services.google.client_secret'))
+            && str_starts_with((string) config('services.google.redirect'), 'https://'),
+        'facebook_oauth' => filled(config('services.facebook.client_id'))
+            && filled(config('services.facebook.client_secret'))
+            && str_starts_with((string) config('services.facebook.redirect'), 'https://'),
     ];
 
     if ($this->option('runtime')) {

@@ -8,11 +8,18 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\SocialLoginController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
     Route::get('/dang-nhap', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/dang-nhap', [AuthenticatedSessionController::class, 'store']);
+    Route::get('/dang-nhap/{provider}', [SocialLoginController::class, 'redirect'])
+        ->whereIn('provider', ['google', 'facebook'])
+        ->name('oauth.redirect');
+    Route::get('/dang-nhap/{provider}/callback', [SocialLoginController::class, 'callback'])
+        ->whereIn('provider', ['google', 'facebook'])
+        ->name('oauth.callback');
     Route::get('/dang-ky', [RegisteredUserController::class, 'create'])->name('register');
     Route::post('/dang-ky', [RegisteredUserController::class, 'store']);
     Route::get('/quen-mat-khau', [PasswordResetController::class, 'request'])->name('password.request');

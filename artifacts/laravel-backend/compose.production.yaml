@@ -33,6 +33,12 @@ x-app-environment: &app-environment
   CSP_REPORT_ONLY: "false"
   MANUAL_PAYMENT_WEBHOOK_SECRET: ${MANUAL_PAYMENT_WEBHOOK_SECRET:?Payment webhook secret is required}
   MANUAL_SHIPPING_WEBHOOK_SECRET: ${MANUAL_SHIPPING_WEBHOOK_SECRET:?Shipping webhook secret is required}
+  GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?Google OAuth client ID is required}
+  GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?Google OAuth client secret is required}
+  GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:?Google OAuth redirect URI is required}
+  FACEBOOK_CLIENT_ID: ${FACEBOOK_CLIENT_ID:?Facebook OAuth app ID is required}
+  FACEBOOK_CLIENT_SECRET: ${FACEBOOK_CLIENT_SECRET:?Facebook OAuth app secret is required}
+  FACEBOOK_REDIRECT_URI: ${FACEBOOK_REDIRECT_URI:?Facebook OAuth redirect URI is required}
 
 services:
   web:

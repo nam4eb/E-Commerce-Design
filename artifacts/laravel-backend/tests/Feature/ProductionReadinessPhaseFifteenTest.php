@@ -30,6 +30,8 @@ class ProductionReadinessPhaseFifteenTest extends TestCase
             'media.disk' => 's3',
             'services.payment_webhooks.secrets.manual' => 'payment-secret',
             'services.shipping_webhooks.secrets.manual' => 'shipping-secret',
+            'services.google' => ['client_id' => 'google-id', 'client_secret' => 'google-secret', 'redirect' => 'https://shop.example.com/dang-nhap/google/callback'],
+            'services.facebook' => ['client_id' => 'facebook-id', 'client_secret' => 'facebook-secret', 'redirect' => 'https://shop.example.com/dang-nhap/facebook/callback'],
         ]);
 
         $this->artisan('ops:production-check')->assertSuccessful();
