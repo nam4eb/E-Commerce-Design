@@ -15,6 +15,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Dashboard as BaseDashboard;
 use Filament\Pages\Dashboard\Concerns\HasFiltersForm;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -26,12 +27,18 @@ class Dashboard extends BaseDashboard
 
     protected static ?string $navigationLabel = 'Tổng quan';
 
+    public function getFiltersFormContentComponent(): Component
+    {
+        return parent::getFiltersFormContentComponent()->columnSpanFull();
+    }
+
     public function filtersForm(Schema $schema): Schema
     {
         return $schema->components([
             Section::make('Bộ lọc báo cáo')
                 ->description('Thống kê được tổng hợp trực tiếp từ đơn hàng và dữ liệu catalog.')
-                ->columns(5)
+                ->columnSpanFull()
+                ->columns(['default' => 1, 'sm' => 2, 'lg' => 3, '2xl' => 5])
                 ->schema([
                     Select::make('period')->label('Khoảng nhanh')->options(['custom' => 'Tùy chọn ngày', 'today' => 'Hôm nay', '7_days' => '7 ngày', '30_days' => '30 ngày', 'this_month' => 'Tháng này', 'last_month' => 'Tháng trước'])->default('30_days')->selectablePlaceholder(false),
                     DatePicker::make('from')->label('Từ ngày')->default(now()->subDays(29)->toDateString())->maxDate(now()),

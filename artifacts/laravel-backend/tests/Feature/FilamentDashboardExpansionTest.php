@@ -12,6 +12,9 @@ use App\Filament\Resources\Users\UserResource;
 use App\Filament\Widgets\BestSellingProducts;
 use App\Models\CustomerRequest;
 use App\Models\Order;
+use App\Models\Payment;
+use App\Models\Review;
+use App\Models\Shipment;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -38,6 +41,10 @@ class FilamentDashboardExpansionTest extends TestCase
     {
         $this->assertTrue(Schema::hasColumns('customer_requests', ['type', 'status', 'assigned_to', 'resolved_at']));
         $this->assertGreaterThanOrEqual(36, Order::count());
+        $this->assertGreaterThanOrEqual(19, User::where('role', AdminRole::Customer)->count());
+        $this->assertGreaterThanOrEqual(12, Review::where('status', 'approved')->count());
+        $this->assertGreaterThan(0, Payment::where('provider', 'demo')->count());
+        $this->assertGreaterThan(0, Shipment::where('provider', 'demo')->count());
         $this->assertSame(2, CustomerRequest::count());
 
         $admin = User::where('role', AdminRole::SuperAdmin)->firstOrFail();
