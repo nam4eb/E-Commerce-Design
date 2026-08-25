@@ -49,8 +49,17 @@ x-app-environment: &app-environment
   CHATBOT_SERVICE_URL: http://chatbot:8001
   CHATBOT_SERVICE_SECRET: ${CHATBOT_SERVICE_SECRET:-local-chatbot-secret}
 
+x-runtime-security: &runtime-security
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  tmpfs:
+    - /tmp
+
 services:
   app:
+    <<: *runtime-security
     build:
       context: .
       target: app
@@ -74,6 +83,7 @@ services:
       - media-data:/var/www/html/storage/app/public
 
   ssr:
+    <<: *runtime-security
     build:
       context: .
       target: ssr
@@ -84,6 +94,7 @@ services:
       - "13714"
 
   queue:
+    <<: *runtime-security
     build:
       context: .
       target: app
@@ -98,6 +109,7 @@ services:
         condition: service_healthy
 
   scheduler:
+    <<: *runtime-security
     build:
       context: .
       target: app
@@ -110,6 +122,7 @@ services:
         condition: service_healthy
 
   chatbot:
+    <<: *runtime-security
     build: ./services/chatbot
     environment:
       DB_HOST: mysql
@@ -118,7 +131,6 @@ services:
       DB_USERNAME: ${CHATBOT_DB_USERNAME:-dienmay365}
       DB_PASSWORD: ${CHATBOT_DB_PASSWORD:-local-secret}
       CHATBOT_SERVICE_SECRET: ${CHATBOT_SERVICE_SECRET:-local-chatbot-secret}
-      PUBLIC_APP_URL: ${APP_URL:-http://localhost:8000}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.4-mini}
     depends_on:

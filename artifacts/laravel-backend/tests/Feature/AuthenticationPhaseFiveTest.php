@@ -42,6 +42,19 @@ class AuthenticationPhaseFiveTest extends TestCase
         Notification::assertSentTo($user, ResetPassword::class);
     }
 
+    public function test_password_reset_does_not_disclose_registered_emails(): void
+    {
+        Notification::fake();
+        $known = User::factory()->create();
+
+        $knownResponse = $this->post('/quen-mat-khau', ['email' => $known->email]);
+        $unknownResponse = $this->post('/quen-mat-khau', ['email' => 'unknown@example.test']);
+
+        $knownResponse->assertSessionHas('status', __('passwords.sent'));
+        $unknownResponse->assertSessionHas('status', __('passwords.sent'));
+        Notification::assertSentTo($known, ResetPassword::class);
+    }
+
     public function test_profile_and_password_can_be_updated(): void
     {
         $user = User::factory()->create(['password' => Hash::make('old-password')]);

@@ -90,8 +90,8 @@ Artisan::command('ops:production-check {--runtime}', function () {
         'production_mail' => config('mail.default') !== 'log'
             && config('mail.from.address') !== 'hello@example.com',
         'object_storage' => config('media.disk') === 's3',
-        'payment_webhook_secret' => filled(config('services.payment_webhooks.secrets.manual')),
-        'shipping_webhook_secret' => filled(config('services.shipping_webhooks.secrets.manual')),
+        'payment_webhook_secret' => strlen((string) config('services.payment_webhooks.secrets.manual')) >= 32,
+        'shipping_webhook_secret' => strlen((string) config('services.shipping_webhooks.secrets.manual')) >= 32,
         'google_oauth' => filled(config('services.google.client_id'))
             && filled(config('services.google.client_secret'))
             && str_starts_with((string) config('services.google.redirect'), 'https://'),
@@ -100,7 +100,7 @@ Artisan::command('ops:production-check {--runtime}', function () {
             && str_starts_with((string) config('services.facebook.redirect'), 'https://'),
         'chatbot_service' => config('chatbot.enabled') === true
             && filled(config('chatbot.url'))
-            && filled(config('chatbot.secret')),
+            && strlen((string) config('chatbot.secret')) >= 32,
     ];
 
     if ($this->option('runtime')) {

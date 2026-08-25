@@ -33,12 +33,14 @@ class SecurityHeaders
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
         $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin');
+        $response->headers->set('Cross-Origin-Resource-Policy', 'same-origin');
+        $response->headers->set('X-Permitted-Cross-Domain-Policies', 'none');
 
         if ($request->isSecure() && app()->isProduction()) {
             $response->headers->set('Strict-Transport-Security', 'max-age='.config('security.hsts_max_age').'; includeSubDomains; preload');
         }
 
-        if ($request->is('gio-hang*', 'thanh-toan*', 'tai-khoan*', 'dang-nhap*', 'dang-ky*', 'admin*')) {
+        if ($request->is('gio-hang*', 'thanh-toan*', 'don-hang*', 'tai-khoan*', 'dang-nhap*', 'dang-ky*', 'quen-mat-khau*', 'dat-lai-mat-khau*', 'xac-minh-email*', 'api/v1/chat', 'admin*')) {
             $response->headers->set('Cache-Control', 'no-store, private');
             $response->headers->set('Pragma', 'no-cache');
         }

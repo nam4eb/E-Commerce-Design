@@ -31,6 +31,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && docker-php-ext-enable redis \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY docker/php/security.ini /usr/local/etc/php/conf.d/zz-security.ini
 WORKDIR /var/www/html
 
 FROM php-base AS app
@@ -41,6 +42,7 @@ RUN touch .env \
     && mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache \
     && ln -s ../storage/app/public public/storage \
     && chown -R www-data:www-data storage bootstrap/cache
+USER www-data
 EXPOSE 8000
 EXPOSE 9000
 CMD ["php-fpm", "-F"]
@@ -64,6 +66,7 @@ FROM node:22-bookworm-slim AS ssr
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
-COPY --from=frontend /app/bootstrap/ssr ./bootstrap/ssr
+COPY --chown=node:node --from=frontend /app/bootstrap/ssr ./bootstrap/ssr
+USER node
 EXPOSE 13714
 CMD ["node", "bootstrap/ssr/ssr.js"]

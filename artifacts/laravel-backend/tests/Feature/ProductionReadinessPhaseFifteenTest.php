@@ -28,11 +28,11 @@ class ProductionReadinessPhaseFifteenTest extends TestCase
             'mail.default' => 'smtp',
             'mail.from.address' => 'orders@example.com',
             'media.disk' => 's3',
-            'services.payment_webhooks.secrets.manual' => 'payment-secret',
-            'services.shipping_webhooks.secrets.manual' => 'shipping-secret',
+            'services.payment_webhooks.secrets.manual' => str_repeat('p', 32),
+            'services.shipping_webhooks.secrets.manual' => str_repeat('s', 32),
             'services.google' => ['client_id' => 'google-id', 'client_secret' => 'google-secret', 'redirect' => 'https://shop.example.com/dang-nhap/google/callback'],
             'services.facebook' => ['client_id' => 'facebook-id', 'client_secret' => 'facebook-secret', 'redirect' => 'https://shop.example.com/dang-nhap/facebook/callback'],
-            'chatbot' => ['enabled' => true, 'url' => 'http://chatbot:8001', 'secret' => 'chatbot-secret'],
+            'chatbot' => ['enabled' => true, 'url' => 'http://chatbot:8001', 'secret' => str_repeat('c', 32)],
         ]);
 
         $this->artisan('ops:production-check')->assertSuccessful();

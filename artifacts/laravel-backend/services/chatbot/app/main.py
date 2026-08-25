@@ -55,7 +55,6 @@ def database_engine() -> Engine:
 
 
 engine = database_engine()
-PUBLIC_APP_URL = os.getenv("PUBLIC_APP_URL", "http://localhost:8000").rstrip("/")
 STOP_WORDS = {"có", "cho", "của", "dùng", "giá", "gì", "là", "máy", "mình", "nào", "sản", "phẩm", "tôi", "và", "với"}
 
 
@@ -153,12 +152,12 @@ def build_context(products: list[dict], articles: list[dict]) -> str:
 def sources_for(products: list[dict], articles: list[dict]) -> list[Source]:
     result = [Source(
         title=item["name"],
-        url=f"{PUBLIC_APP_URL}/{item['category_slug']}/{item['slug']}",
+        url=f"/{item['category_slug']}/{item['slug']}",
         type="product",
     ) for item in products[:3]]
     result.extend(Source(
         title=item["title"],
-        url=f"{PUBLIC_APP_URL}/tin-tuc/{item['slug']}",
+        url=f"/tin-tuc/{item['slug']}",
         type="article",
     ) for item in articles[:1])
     return result

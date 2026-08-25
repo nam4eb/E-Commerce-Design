@@ -26,9 +26,18 @@ class SecurityObservabilityPhaseFourteenTest extends TestCase
             ->assertHeader('X-Request-ID', 'phase14-request-123')
             ->assertHeader('X-Content-Type-Options', 'nosniff')
             ->assertHeader('X-Frame-Options', 'DENY')
-            ->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+            ->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
+            ->assertHeader('Cross-Origin-Resource-Policy', 'same-origin')
+            ->assertHeader('X-Permitted-Cross-Domain-Policies', 'none');
         $this->assertStringContainsString("frame-ancestors 'none'", $response->headers->get('Content-Security-Policy'));
         $this->assertStringNotContainsString("'unsafe-eval'", $response->headers->get('Content-Security-Policy'));
+    }
+
+    public function test_password_reset_and_order_pages_are_never_cached(): void
+    {
+        $this->get('/quen-mat-khau')->assertHeader('Cache-Control', 'no-store, private');
+        $this->get('/dat-lai-mat-khau/fake-token?email=user@example.test')->assertHeader('Cache-Control', 'no-store, private');
+        $this->get('/don-hang/DM365-UNKNOWN')->assertHeader('Cache-Control', 'no-store, private');
     }
 
     public function test_untrusted_request_id_is_replaced_and_sensitive_pages_are_not_cached(): void

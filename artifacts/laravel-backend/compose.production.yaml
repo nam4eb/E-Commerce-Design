@@ -43,6 +43,14 @@ x-app-environment: &app-environment
   CHATBOT_SERVICE_URL: http://chatbot:8001
   CHATBOT_SERVICE_SECRET: ${CHATBOT_SERVICE_SECRET:?Chatbot service secret is required}
 
+x-runtime-security: &runtime-security
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  tmpfs:
+    - /tmp
+
 services:
   web:
     image: ${WEB_IMAGE:-dienmay365-web}:${RELEASE_TAG:-local}
@@ -57,6 +65,7 @@ services:
     restart: unless-stopped
 
   app:
+    <<: *runtime-security
     image: ${APP_IMAGE:-dienmay365-app}:${RELEASE_TAG:-local}
     build:
       context: .
@@ -75,6 +84,7 @@ services:
     restart: unless-stopped
 
   ssr:
+    <<: *runtime-security
     image: ${SSR_IMAGE:-dienmay365-ssr}:${RELEASE_TAG:-local}
     build: { context: ., target: ssr }
     environment: { NODE_ENV: production, PORT: 13714 }
@@ -82,6 +92,7 @@ services:
     restart: unless-stopped
 
   queue:
+    <<: *runtime-security
     image: ${APP_IMAGE:-dienmay365-app}:${RELEASE_TAG:-local}
     command: php artisan queue:work --sleep=1 --tries=3 --timeout=90 --max-time=3600
     environment: *app-environment
@@ -91,6 +102,7 @@ services:
     restart: unless-stopped
 
   scheduler:
+    <<: *runtime-security
     image: ${APP_IMAGE:-dienmay365-app}:${RELEASE_TAG:-local}
     command: php artisan schedule:work
     environment: *app-environment
@@ -100,6 +112,7 @@ services:
     restart: unless-stopped
 
   chatbot:
+    <<: *runtime-security
     image: ${CHATBOT_IMAGE:-dienmay365-chatbot}:${RELEASE_TAG:-local}
     build: ./services/chatbot
     environment:
@@ -109,7 +122,6 @@ services:
       DB_USERNAME: ${CHATBOT_DB_USERNAME:?Read-only chatbot DB username is required}
       DB_PASSWORD: ${CHATBOT_DB_PASSWORD:?Read-only chatbot DB password is required}
       CHATBOT_SERVICE_SECRET: ${CHATBOT_SERVICE_SECRET:?Chatbot service secret is required}
-      PUBLIC_APP_URL: ${APP_URL:?APP_URL is required}
       OPENAI_API_KEY: ${OPENAI_API_KEY:?OpenAI API key is required}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.4-mini}
     depends_on:

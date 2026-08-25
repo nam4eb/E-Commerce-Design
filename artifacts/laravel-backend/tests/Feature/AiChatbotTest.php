@@ -21,7 +21,7 @@ class AiChatbotTest extends TestCase
     {
         Http::fake(['http://chatbot:8001/v1/chat' => Http::response([
             'message' => 'Điều hòa phù hợp phòng 15m².',
-            'sources' => [['title' => 'Daikin', 'url' => 'http://localhost/dieu-hoa/daikin', 'type' => 'product']],
+            'sources' => [['title' => 'Daikin', 'url' => '/dieu-hoa/daikin', 'type' => 'product']],
             'mode' => 'catalog',
         ])]);
 
@@ -47,6 +47,19 @@ class AiChatbotTest extends TestCase
     public function test_chat_fails_safely_when_python_service_is_unavailable(): void
     {
         Http::fake(['*' => Http::response([], 500)]);
+
+        $this->postJson('/api/v1/chat', ['message' => 'Tư vấn điều hòa'])
+            ->assertStatus(503)
+            ->assertJsonPath('sources', []);
+    }
+
+    public function test_chat_rejects_untrusted_links_and_oversized_responses(): void
+    {
+        Http::fake(['*' => Http::response([
+            'message' => str_repeat('x', 4001),
+            'sources' => [['title' => 'Unsafe', 'url' => 'javascript:alert(1)', 'type' => 'product']],
+            'mode' => 'ai',
+        ])]);
 
         $this->postJson('/api/v1/chat', ['message' => 'Tư vấn điều hòa'])
             ->assertStatus(503)
