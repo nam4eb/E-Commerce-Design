@@ -17,6 +17,8 @@ class RevenueByBrandChart extends ChartWidget
 
     protected int|string|array $columnSpan = 1;
 
+    protected ?string $pollingInterval = null;
+
     protected function getData(): array
     {
         [$from, $to] = DashboardFilters::range($this->pageFilters);

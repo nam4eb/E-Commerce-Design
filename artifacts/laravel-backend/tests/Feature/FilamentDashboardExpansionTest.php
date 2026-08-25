@@ -9,6 +9,7 @@ use App\Filament\Resources\AuditLogs\AuditLogResource;
 use App\Filament\Resources\CustomerRequests\CustomerRequestResource;
 use App\Filament\Resources\Settings\SettingResource;
 use App\Filament\Resources\Users\UserResource;
+use App\Filament\Widgets\BestSellingProducts;
 use App\Models\CustomerRequest;
 use App\Models\Order;
 use App\Models\User;
@@ -42,6 +43,8 @@ class FilamentDashboardExpansionTest extends TestCase
         $admin = User::where('role', AdminRole::SuperAdmin)->firstOrFail();
         $this->actingAs($admin);
         Livewire::test(Dashboard::class)->assertOk()->assertSee('Bộ lọc báo cáo');
+        $bestSellers = Livewire::test(BestSellingProducts::class)->assertOk();
+        $this->assertFalse($bestSellers->instance()->getTable()->hasDefaultKeySort());
         Livewire::test(RoleMatrix::class)->assertOk()->assertSee('Ma trận vai trò và quyền hạn');
         $this->assertTrue(AuditLogResource::canViewAny());
     }

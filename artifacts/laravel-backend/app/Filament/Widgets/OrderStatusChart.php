@@ -17,6 +17,8 @@ class OrderStatusChart extends ChartWidget
 
     protected int|string|array $columnSpan = 1;
 
+    protected ?string $pollingInterval = null;
+
     protected function getData(): array
     {
         $statuses = ['pending' => 'Chờ xác nhận', 'confirmed' => 'Đã xác nhận', 'processing' => 'Đang xử lý', 'shipping' => 'Đang giao', 'delivered' => 'Đã giao', 'cancelled' => 'Đã hủy', 'failed' => 'Thất bại'];

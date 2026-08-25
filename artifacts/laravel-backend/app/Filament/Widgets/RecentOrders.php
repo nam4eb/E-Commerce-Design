@@ -14,6 +14,8 @@ class RecentOrders extends TableWidget
 
     protected int|string|array $columnSpan = 'full';
 
+    protected ?string $pollingInterval = null;
+
     public function table(Table $table): Table
     {
         return $table

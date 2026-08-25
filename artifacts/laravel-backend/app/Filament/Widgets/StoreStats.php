@@ -17,6 +17,8 @@ class StoreStats extends StatsOverviewWidget
 
     protected int|string|array $columnSpan = 'full';
 
+    protected ?string $pollingInterval = null;
+
     protected function getStats(): array
     {
         $orders = DashboardFilters::orders(Order::query(), $this->pageFilters);

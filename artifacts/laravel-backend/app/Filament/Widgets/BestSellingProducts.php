@@ -18,6 +18,8 @@ class BestSellingProducts extends TableWidget
 
     protected int|string|array $columnSpan = 'full';
 
+    protected ?string $pollingInterval = null;
+
     public function table(Table $table): Table
     {
         [$from, $to] = DashboardFilters::range($this->pageFilters);
@@ -37,6 +39,7 @@ class BestSellingProducts extends TableWidget
                 TextColumn::make('sold_quantity')->label('Số lượng bán')->numeric()->sortable(),
                 TextColumn::make('revenue')->label('Doanh thu')->money('VND')->sortable(),
             ])
+            ->defaultKeySort(false)
             ->paginated(false);
     }
 }
