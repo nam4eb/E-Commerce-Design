@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users;
 
+use App\Enums\AdminRole;
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
@@ -20,7 +21,13 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
+
+    protected static string|\UnitEnum|null $navigationGroup = 'Phân quyền';
+
+    protected static ?string $navigationLabel = 'Người dùng & Quản trị viên';
+
+    protected static ?string $pluralModelLabel = 'Người dùng & Quản trị viên';
 
     public static function form(Schema $schema): Schema
     {
@@ -46,6 +53,11 @@ class UserResource extends Resource
             'create' => CreateUser::route('/create'),
             'edit' => EditUser::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->role === AdminRole::SuperAdmin;
     }
 
     public static function getRecordRouteBindingEloquentQuery(): Builder

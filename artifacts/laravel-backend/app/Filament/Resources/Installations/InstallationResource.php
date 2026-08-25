@@ -18,6 +18,10 @@ class InstallationResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Bán hàng';
+
+    protected static ?string $navigationLabel = 'Lắp đặt';
+
     public static function form(Schema $schema): Schema
     {
         return InstallationForm::configure($schema);

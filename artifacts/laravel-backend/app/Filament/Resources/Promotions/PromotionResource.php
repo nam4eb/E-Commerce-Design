@@ -20,6 +20,10 @@ class PromotionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Bán hàng';
+
+    protected static ?string $navigationLabel = 'Khuyến mãi';
+
     public static function form(Schema $schema): Schema
     {
         return PromotionForm::configure($schema);

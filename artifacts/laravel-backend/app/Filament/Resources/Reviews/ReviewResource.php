@@ -18,6 +18,10 @@ class ReviewResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Khách hàng';
+
+    protected static ?string $navigationLabel = 'Đánh giá';
+
     public static function form(Schema $schema): Schema
     {
         return ReviewForm::configure($schema);

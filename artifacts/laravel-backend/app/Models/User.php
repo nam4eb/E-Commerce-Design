@@ -85,6 +85,11 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
         return $this->hasMany(SocialAccount::class);
     }
 
+    public function assignedCustomerRequests(): HasMany
+    {
+        return $this->hasMany(CustomerRequest::class, 'assigned_to');
+    }
+
     public function wishlistItems(): HasMany
     {
         return $this->hasMany(Wishlist::class);
@@ -104,8 +109,8 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
         $permissions = match ($this->role) {
             AdminRole::CatalogEditor => ['catalog.view', 'catalog.manage', 'content.view'],
             AdminRole::ContentEditor => ['catalog.view', 'content.view', 'content.manage', 'reviews.view', 'reviews.manage'],
-            AdminRole::OrderOperator => ['catalog.view', 'commerce.view', 'commerce.manage', 'customers.view'],
-            AdminRole::Support => ['catalog.view', 'commerce.view', 'customers.view', 'reviews.view'],
+            AdminRole::OrderOperator => ['catalog.view', 'commerce.view', 'commerce.manage', 'customers.view', 'customers.manage'],
+            AdminRole::Support => ['catalog.view', 'commerce.view', 'customers.view', 'customers.manage', 'reviews.view'],
             AdminRole::ReadOnly => ['catalog.view', 'content.view', 'commerce.view', 'customers.view', 'reviews.view'],
             default => [],
         };

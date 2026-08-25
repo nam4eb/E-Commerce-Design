@@ -22,6 +22,10 @@ class CouponResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Bán hàng';
+
+    protected static ?string $navigationLabel = 'Mã giảm giá';
+
     public static function form(Schema $schema): Schema
     {
         return CouponForm::configure($schema);

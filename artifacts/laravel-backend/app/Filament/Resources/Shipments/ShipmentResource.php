@@ -18,6 +18,10 @@ class ShipmentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Bán hàng';
+
+    protected static ?string $navigationLabel = 'Vận chuyển';
+
     public static function form(Schema $schema): Schema
     {
         return ShipmentForm::configure($schema);

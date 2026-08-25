@@ -16,6 +16,12 @@ class CommerceFoundationSeeder extends Seeder
         foreach ([
             ['key' => 'store.currency', 'value' => 'VND', 'type' => 'string', 'is_public' => true],
             ['key' => 'store.timezone', 'value' => 'Asia/Bangkok', 'type' => 'string', 'is_public' => true],
+            ['key' => 'store.locale', 'value' => 'vi', 'type' => 'string', 'is_public' => true],
+            ['key' => 'store.support_phone', 'value' => '1800 6865', 'type' => 'string', 'is_public' => true],
+            ['key' => 'seo.trailing_slash', 'value' => 'false', 'type' => 'boolean', 'is_public' => false],
+            ['key' => 'seo.product_permalink', 'value' => '/{category}/{product}', 'type' => 'string', 'is_public' => false],
+            ['key' => 'legal.terms_url', 'value' => '/dieu-khoan-su-dung', 'type' => 'string', 'is_public' => true],
+            ['key' => 'legal.privacy_url', 'value' => '/chinh-sach-bao-mat', 'type' => 'string', 'is_public' => true],
             ['key' => 'checkout.max_quantity_per_line', 'value' => '10', 'type' => 'integer', 'is_public' => false],
             ['key' => 'shipping.free_threshold', 'value' => '5000000', 'type' => 'integer', 'is_public' => true],
             ['key' => 'shipping.local_fee', 'value' => '50000', 'type' => 'integer', 'is_public' => true],

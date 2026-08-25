@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             ContentSeeder::class,
             CommerceFoundationSeeder::class,
             DemoCommerceSeeder::class,
+            DashboardDemoSeeder::class,
         ]);
     }
 }

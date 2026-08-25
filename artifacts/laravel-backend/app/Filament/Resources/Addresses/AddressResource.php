@@ -20,6 +20,10 @@ class AddressResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Khách hàng';
+
+    protected static ?string $navigationLabel = 'Địa chỉ khách hàng';
+
     public static function form(Schema $schema): Schema
     {
         return AddressForm::configure($schema);

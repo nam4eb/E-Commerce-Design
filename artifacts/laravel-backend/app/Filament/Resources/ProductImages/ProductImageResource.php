@@ -20,6 +20,10 @@ class ProductImageResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Catalog';
+
+    protected static ?string $navigationLabel = 'Hình ảnh sản phẩm';
+
     public static function form(Schema $schema): Schema
     {
         return ProductImageForm::configure($schema);

@@ -20,6 +20,10 @@ class OrderResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Bán hàng';
+
+    protected static ?string $navigationLabel = 'Đơn hàng';
+
     public static function form(Schema $schema): Schema
     {
         return OrderForm::configure($schema);
