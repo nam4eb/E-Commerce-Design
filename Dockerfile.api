@@ -1,0 +1,27 @@
+# syntax=docker/dockerfile:1.7
+FROM node:24-bookworm-slim AS build
+WORKDIR /workspace
+RUN corepack enable && corepack prepare pnpm@10.28.0 --activate
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc tsconfig.base.json ./
+COPY artifacts/api-server/package.json artifacts/api-server/package.json
+COPY artifacts/electronics-store/package.json artifacts/electronics-store/package.json
+COPY artifacts/mockup-sandbox/package.json artifacts/mockup-sandbox/package.json
+COPY lib/api-client-react/package.json lib/api-client-react/package.json
+COPY lib/api-spec/package.json lib/api-spec/package.json
+COPY lib/api-zod/package.json lib/api-zod/package.json
+COPY lib/db/package.json lib/db/package.json
+COPY scripts/package.json scripts/package.json
+COPY scripts/preinstall.mjs scripts/preinstall.mjs
+RUN pnpm install --frozen-lockfile
+COPY artifacts/api-server artifacts/api-server
+COPY lib lib
+RUN pnpm --filter @workspace/api-server run build
+
+FROM node:24-bookworm-slim AS runtime
+ENV NODE_ENV=production PORT=5000
+WORKDIR /workspace/artifacts/api-server
+# esbuild-plugin-pino records this absolute output directory for worker files.
+COPY --from=build /workspace/artifacts/api-server/dist ./dist
+USER node
+EXPOSE 5000
+CMD ["node", "--enable-source-maps", "dist/index.mjs"]

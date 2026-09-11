@@ -1,0 +1,24 @@
+# syntax=docker/dockerfile:1.7
+FROM node:24-bookworm-slim AS build
+WORKDIR /workspace
+RUN corepack enable && corepack prepare pnpm@10.28.0 --activate
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc tsconfig.base.json ./
+COPY artifacts/api-server/package.json artifacts/api-server/package.json
+COPY artifacts/electronics-store/package.json artifacts/electronics-store/package.json
+COPY artifacts/mockup-sandbox/package.json artifacts/mockup-sandbox/package.json
+COPY lib/api-client-react/package.json lib/api-client-react/package.json
+COPY lib/api-spec/package.json lib/api-spec/package.json
+COPY lib/api-zod/package.json lib/api-zod/package.json
+COPY lib/db/package.json lib/db/package.json
+COPY scripts/package.json scripts/package.json
+COPY scripts/preinstall.mjs scripts/preinstall.mjs
+RUN pnpm install --frozen-lockfile
+COPY artifacts/electronics-store artifacts/electronics-store
+COPY lib lib
+RUN pnpm --filter @workspace/electronics-store run build
+
+FROM nginx:1.28-alpine AS runtime
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /workspace/artifacts/electronics-store/dist/public /usr/share/nginx/html
+EXPOSE 8080
+HEALTHCHECK --interval=10s --timeout=3s --retries=5 CMD wget -qO- http://127.0.0.1:8080/healthz || exit 1

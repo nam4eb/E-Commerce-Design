@@ -1,36 +1,3250 @@
-openapi: 3.1.0
-info:
-  # Do not change the title, if the title changes, the import paths will be broken
-  title: Api
-  version: 0.1.0
-  description: API specification
-servers:
-  - url: /api
-    description: Base API path
-tags:
-  - name: health
-    description: Health operations
-paths:
-  /healthz:
-    get:
-      operationId: healthCheck
-      tags: [health]
-      summary: Health check
-      description: Returns server health status
-      responses:
-        "200":
-          description: Healthy
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HealthStatus"
-components:
-  schemas:
-    HealthStatus:
-      type: object
-      properties:
-        status:
-          type: string
-      required:
-        - status
-
+{
+  "openapi": "3.1.0",
+  "info":
+    {
+      "title": "Api",
+      "version": "0.3.0",
+      "description": "Commerce API: cookie sessions, OAuth, signed payments, reviews, content and support.",
+    },
+  "servers": [{ "url": "/api" }],
+  "paths":
+    {
+      "/healthz":
+        {
+          "get":
+            {
+              "operationId": "healthCheck",
+              "summary": "healthCheck",
+              "tags": ["commerce"],
+              "security": [],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/HealthStatus" },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "404":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "409":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "429":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "500":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/products":
+        {
+          "get":
+            {
+              "operationId": "listProducts",
+              "summary": "listProducts",
+              "tags": ["commerce"],
+              "security": [],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "array",
+                                  "items":
+                                    { "$ref": "#/components/schemas/Product" },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "404":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "409":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "429":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "500":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/auth/me":
+        {
+          "get":
+            {
+              "operationId": "getCurrentUser",
+              "summary": "getCurrentUser",
+              "tags": ["auth"],
+              "security": [],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "anyOf":
+                                    [
+                                      { "$ref": "#/components/schemas/User" },
+                                      { "type": "null" },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "404":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "409":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "429":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "500":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/auth/login":
+        {
+          "post":
+            {
+              "operationId": "login",
+              "summary": "login",
+              "tags": ["auth"],
+              "security": [],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema": { "$ref": "#/components/schemas/User" },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "404":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "409":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "429":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "500":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "X-Store-Request",
+                    "in": "header",
+                    "required": true,
+                    "schema": { "type": "string", "enum": ["1"] },
+                  },
+                ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        { "schema": { "$ref": "#/components/schemas/Login" } },
+                    },
+                },
+            },
+        },
+      "/auth/register":
+        {
+          "post":
+            {
+              "operationId": "register",
+              "summary": "register",
+              "tags": ["auth"],
+              "security": [],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema": { "$ref": "#/components/schemas/User" },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "404":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "409":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "429":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "500":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "X-Store-Request",
+                    "in": "header",
+                    "required": true,
+                    "schema": { "type": "string", "enum": ["1"] },
+                  },
+                ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema": { "$ref": "#/components/schemas/Register" },
+                        },
+                    },
+                },
+            },
+        },
+      "/auth/logout":
+        {
+          "post":
+            {
+              "operationId": "logout",
+              "summary": "logout",
+              "tags": ["auth"],
+              "security": [],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            { "schema": { "$ref": "#/components/schemas/Ok" } },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "404":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "409":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "429":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "500":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "X-Store-Request",
+                    "in": "header",
+                    "required": true,
+                    "schema": { "type": "string", "enum": ["1"] },
+                  },
+                ],
+            },
+        },
+      "/account":
+        {
+          "patch":
+            {
+              "operationId": "updateProfile",
+              "summary": "updateProfile",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema": { "$ref": "#/components/schemas/User" },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "404":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "409":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "429":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "500":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "X-Store-Request",
+                    "in": "header",
+                    "required": true,
+                    "schema": { "type": "string", "enum": ["1"] },
+                  },
+                ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema": { "$ref": "#/components/schemas/Profile" },
+                        },
+                    },
+                },
+            },
+        },
+      "/account/wishlist":
+        {
+          "put":
+            {
+              "operationId": "updateWishlist",
+              "summary": "updateWishlist",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            { "schema": { "$ref": "#/components/schemas/Ok" } },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "404":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "409":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "429":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "500":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "X-Store-Request",
+                    "in": "header",
+                    "required": true,
+                    "schema": { "type": "string", "enum": ["1"] },
+                  },
+                ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema": { "$ref": "#/components/schemas/Wishlist" },
+                        },
+                    },
+                },
+            },
+        },
+      "/orders":
+        {
+          "get":
+            {
+              "operationId": "listOrders",
+              "summary": "listOrders",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "array",
+                                  "items":
+                                    { "$ref": "#/components/schemas/Order" },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "404":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "409":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "429":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "500":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+            },
+          "post":
+            {
+              "operationId": "createOrder",
+              "summary": "createOrder",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Order" },
+                            },
+                        },
+                    },
+                  "201":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Order" },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "404":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "409":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "429":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "500":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "X-Store-Request",
+                    "in": "header",
+                    "required": true,
+                    "schema": { "type": "string", "enum": ["1"] },
+                  },
+                  {
+                    "name": "Idempotency-Key",
+                    "in": "header",
+                    "required": true,
+                    "schema":
+                      { "type": "string", "minLength": 16, "maxLength": 80 },
+                  },
+                ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            { "$ref": "#/components/schemas/OrderInput" },
+                        },
+                    },
+                },
+            },
+        },
+      "/orders/{id}":
+        {
+          "get":
+            {
+              "operationId": "getOrder",
+              "summary": "getOrder",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Order" },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "404":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "409":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "429":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "500":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                  },
+                ],
+            },
+        },
+      "/admin/orders":
+        {
+          "get":
+            {
+              "operationId": "listAdminOrders",
+              "summary": "List all orders (admin only)",
+              "tags": ["admin"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "array",
+                                  "items":
+                                    { "$ref": "#/components/schemas/Order" },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "404":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "409":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "429":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "500":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/admin/orders/{id}":
+        {
+          "patch":
+            {
+              "operationId": "updateOrderStatus",
+              "summary": "Transition order status (admin only)",
+              "tags": ["admin"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Order" },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "404":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "409":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "429":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "500":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                  },
+                  {
+                    "name": "X-Store-Request",
+                    "in": "header",
+                    "required": true,
+                    "schema": { "type": "string", "enum": ["1"] },
+                  },
+                ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            {
+                              "$ref": "#/components/schemas/OrderStatusUpdate",
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/admin/products/{id}":
+        {
+          "patch":
+            {
+              "operationId": "updateInventory",
+              "summary": "Update price and inventory (admin only)",
+              "tags": ["admin"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Product" },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "404":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "409":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "429":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                  "500":
+                    {
+                      "description": "Request failed",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                  },
+                  {
+                    "name": "X-Store-Request",
+                    "in": "header",
+                    "required": true,
+                    "schema": { "type": "string", "enum": ["1"] },
+                  },
+                ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            { "$ref": "#/components/schemas/InventoryUpdate" },
+                        },
+                    },
+                },
+            },
+        },
+      "/config":
+        {
+          "get":
+            {
+              "operationId": "getStoreConfig",
+              "tags": ["commerce"],
+              "security": [],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "additionalProperties": true,
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/auth/{provider}/start":
+        {
+          "post":
+            {
+              "operationId": "startSocialLogin",
+              "tags": ["commerce"],
+              "security": [],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema": { "$ref": "#/components/schemas/Url" },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "provider",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                  },
+                ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            {
+                              "$ref": "#/components/schemas/StartSocialLoginInput",
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/auth/{provider}/callback":
+        {
+          "get":
+            {
+              "operationId": "socialLoginCallback",
+              "tags": ["commerce"],
+              "security": [],
+              "responses":
+                {
+                  "302": { "description": "Success" },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "provider",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                  },
+                ],
+            },
+        },
+      "/account/identities":
+        {
+          "get":
+            {
+              "operationId": "getLinkedIdentities",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "array",
+                                  "items": { "type": "string" },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/orders/{id}/payment":
+        {
+          "post":
+            {
+              "operationId": "createPayment",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema": { "$ref": "#/components/schemas/Url" },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                  },
+                ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            {
+                              "$ref": "#/components/schemas/CreatePaymentInput",
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/orders/{id}/payment/check":
+        {
+          "post":
+            {
+              "operationId": "checkPayment",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Message" },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                  },
+                ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            {
+                              "$ref": "#/components/schemas/CheckPaymentInput",
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/orders/{id}/cancel":
+        {
+          "post":
+            {
+              "operationId": "cancelOrder",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "additionalProperties": true,
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                  },
+                ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            { "$ref": "#/components/schemas/CancelOrderInput" },
+                        },
+                    },
+                },
+            },
+        },
+      "/payments/vnpay/ipn":
+        {
+          "get":
+            {
+              "operationId": "vnpayIpn",
+              "tags": ["commerce"],
+              "security": [],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "additionalProperties": true,
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/payments/momo/ipn":
+        {
+          "post":
+            {
+              "operationId": "momoIpn",
+              "tags": ["commerce"],
+              "security": [],
+              "responses":
+                {
+                  "204": { "description": "Success" },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            { "$ref": "#/components/schemas/MomoIpnInput" },
+                        },
+                    },
+                },
+            },
+        },
+      "/payments/{provider}/return":
+        {
+          "get":
+            {
+              "operationId": "paymentReturn",
+              "tags": ["commerce"],
+              "security": [],
+              "responses":
+                {
+                  "302": { "description": "Success" },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "provider",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                  },
+                ],
+            },
+        },
+      "/admin/orders/{id}/collect-cod":
+        {
+          "post":
+            {
+              "operationId": "collectCod",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Order" },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                  },
+                ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            { "$ref": "#/components/schemas/CollectCodInput" },
+                        },
+                    },
+                },
+            },
+        },
+      "/content/{kind}":
+        {
+          "get":
+            {
+              "operationId": "listContent",
+              "tags": ["commerce"],
+              "security": [],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "array",
+                                  "items":
+                                    { "$ref": "#/components/schemas/Content" },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "kind",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                  },
+                ],
+            },
+        },
+      "/products/{id}/reviews":
+        {
+          "get":
+            {
+              "operationId": "listReviews",
+              "tags": ["commerce"],
+              "security": [],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "array",
+                                  "items":
+                                    { "$ref": "#/components/schemas/Review" },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                  },
+                ],
+            },
+          "post":
+            {
+              "operationId": "saveReview",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            { "schema": { "$ref": "#/components/schemas/Ok" } },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                  },
+                ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        { "schema": { "$ref": "#/components/schemas/Review" } },
+                    },
+                },
+            },
+        },
+      "/newsletter":
+        {
+          "post":
+            {
+              "operationId": "subscribeNewsletter",
+              "tags": ["commerce"],
+              "security": [],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            { "schema": { "$ref": "#/components/schemas/Ok" } },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            {
+                              "$ref": "#/components/schemas/SubscribeNewsletterInput",
+                            },
+                        },
+                    },
+                },
+            },
+          "delete":
+            {
+              "operationId": "unsubscribeNewsletter",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            { "schema": { "$ref": "#/components/schemas/Ok" } },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/support":
+        {
+          "get":
+            {
+              "operationId": "listSupport",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "array",
+                                  "items":
+                                    {
+                                      "type": "object",
+                                      "additionalProperties": true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+            },
+          "post":
+            {
+              "operationId": "createSupport",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "additionalProperties": true,
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            {
+                              "$ref": "#/components/schemas/CreateSupportInput",
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/admin/support":
+        {
+          "get":
+            {
+              "operationId": "adminListsupport",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "array",
+                                  "items":
+                                    {
+                                      "type": "object",
+                                      "additionalProperties": true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/admin/customers":
+        {
+          "get":
+            {
+              "operationId": "adminListcustomers",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "array",
+                                  "items":
+                                    {
+                                      "type": "object",
+                                      "additionalProperties": true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/admin/subscribers":
+        {
+          "get":
+            {
+              "operationId": "adminListsubscribers",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "array",
+                                  "items":
+                                    {
+                                      "type": "object",
+                                      "additionalProperties": true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/admin/support/{id}":
+        {
+          "patch":
+            {
+              "operationId": "replySupport",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            { "schema": { "$ref": "#/components/schemas/Ok" } },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                  },
+                ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            {
+                              "$ref": "#/components/schemas/ReplySupportInput",
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/admin/content/{kind}/{id}":
+        {
+          "put":
+            {
+              "operationId": "saveContent",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Content" },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "kind",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                  },
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                  },
+                ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema": { "$ref": "#/components/schemas/Content" },
+                        },
+                    },
+                },
+            },
+          "delete":
+            {
+              "operationId": "deleteContent",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            { "schema": { "$ref": "#/components/schemas/Ok" } },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "parameters":
+                [
+                  {
+                    "name": "kind",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                  },
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                  },
+                ],
+            },
+        },
+      "/admin/products":
+        {
+          "post":
+            {
+              "operationId": "createProduct",
+              "tags": ["commerce"],
+              "security": [{ "cookieAuth": [] }],
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "Success",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Product" },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                { "$ref": "#/components/schemas/Error" },
+                            },
+                        },
+                    },
+                },
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            {
+                              "$ref": "#/components/schemas/CreateProductInput",
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    },
+  "components":
+    {
+      "schemas":
+        {
+          "HealthStatus":
+            {
+              "type": "object",
+              "properties": { "status": { "type": "string" } },
+              "required": ["status"],
+            },
+          "Error":
+            {
+              "type": "object",
+              "properties": { "message": { "type": "string" } },
+              "required": ["message"],
+            },
+          "Ok":
+            {
+              "type": "object",
+              "properties": { "ok": { "type": "boolean" } },
+              "required": ["ok"],
+            },
+          "Product":
+            {
+              "type": "object",
+              "properties":
+                {
+                  "id": { "type": "string" },
+                  "name": { "type": "string" },
+                  "brand": { "type": "string" },
+                  "category": { "type": "string" },
+                  "categoryId": { "type": "string" },
+                  "price": { "type": "integer" },
+                  "oldPrice": { "type": "integer" },
+                  "rating": { "type": "number" },
+                  "reviews": { "type": "integer" },
+                  "discount": { "type": "integer" },
+                  "image": { "type": "string" },
+                  "gallery": { "type": "array", "items": { "type": "string" } },
+                  "stock": { "type": "integer" },
+                  "sold": { "type": "integer" },
+                  "specs":
+                    {
+                      "type": "array",
+                      "items":
+                        {
+                          "type": "object",
+                          "properties":
+                            {
+                              "label": { "type": "string" },
+                              "value": { "type": "string" },
+                            },
+                          "required": ["label", "value"],
+                        },
+                    },
+                  "tags": { "type": "array", "items": { "type": "string" } },
+                },
+              "required":
+                [
+                  "id",
+                  "name",
+                  "brand",
+                  "category",
+                  "categoryId",
+                  "price",
+                  "oldPrice",
+                  "rating",
+                  "reviews",
+                  "discount",
+                  "image",
+                  "gallery",
+                  "stock",
+                  "sold",
+                  "specs",
+                  "tags",
+                ],
+            },
+          "User":
+            {
+              "type": "object",
+              "properties":
+                {
+                  "id": { "type": "string" },
+                  "email": { "type": "string" },
+                  "name": { "type": "string" },
+                  "phone": { "type": "string" },
+                  "address": { "type": "string" },
+                  "role": { "enum": ["customer", "admin"], "type": "string" },
+                  "wishlist":
+                    { "type": "array", "items": { "type": "string" } },
+                },
+              "required":
+                ["id", "email", "name", "phone", "address", "role", "wishlist"],
+            },
+          "Login":
+            {
+              "type": "object",
+              "properties":
+                {
+                  "email": { "type": "string", "format": "email" },
+                  "password":
+                    { "type": "string", "minLength": 10, "maxLength": 128 },
+                },
+              "required": ["email", "password"],
+            },
+          "Register":
+            {
+              "type": "object",
+              "properties":
+                {
+                  "name": { "type": "string", "minLength": 2 },
+                  "email": { "type": "string", "format": "email" },
+                  "password":
+                    { "type": "string", "minLength": 10, "maxLength": 128 },
+                },
+              "required": ["name", "email", "password"],
+            },
+          "Profile":
+            {
+              "type": "object",
+              "properties":
+                {
+                  "name": { "type": "string" },
+                  "phone": { "type": "string" },
+                  "address": { "type": "string" },
+                },
+              "required": ["name", "phone", "address"],
+            },
+          "Wishlist":
+            {
+              "type": "object",
+              "properties":
+                { "ids": { "type": "array", "items": { "type": "string" } } },
+              "required": ["ids"],
+            },
+          "Recipient":
+            {
+              "type": "object",
+              "properties":
+                {
+                  "name": { "type": "string" },
+                  "phone": { "type": "string" },
+                  "address": { "type": "string" },
+                  "city": { "type": "string" },
+                  "note": { "type": "string" },
+                },
+              "required": ["name", "phone", "address", "city"],
+            },
+          "OrderInput":
+            {
+              "type": "object",
+              "properties":
+                {
+                  "recipient": { "$ref": "#/components/schemas/Recipient" },
+                  "items":
+                    {
+                      "type": "array",
+                      "items":
+                        {
+                          "type": "object",
+                          "properties":
+                            {
+                              "id": { "type": "string" },
+                              "qty":
+                                {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 100,
+                                },
+                            },
+                          "required": ["id", "qty"],
+                        },
+                    },
+                  "method":
+                    { "type": "string", "enum": ["cod", "vnpay", "momo"] },
+                  "install": { "type": "boolean" },
+                  "expectedSubtotal": { "type": "integer" },
+                },
+              "required": ["recipient", "items", "method", "install"],
+            },
+          "Order":
+            {
+              "type": "object",
+              "properties":
+                {
+                  "id": { "type": "string" },
+                  "createdAt": { "type": "string", "format": "date-time" },
+                  "recipient": { "$ref": "#/components/schemas/Recipient" },
+                  "items":
+                    {
+                      "type": "array",
+                      "items":
+                        {
+                          "type": "object",
+                          "properties":
+                            {
+                              "id": { "type": "string" },
+                              "name": { "type": "string" },
+                              "price": { "type": "integer" },
+                              "qty": { "type": "integer" },
+                            },
+                          "required": ["id", "name", "price", "qty"],
+                        },
+                    },
+                  "subtotal": { "type": "integer" },
+                  "shipping": { "type": "integer" },
+                  "installation": { "type": "integer" },
+                  "total": { "type": "integer" },
+                  "method":
+                    { "type": "string", "enum": ["cod", "vnpay", "momo"] },
+                  "paymentStatus": { "type": "string" },
+                  "status": { "type": "string" },
+                },
+              "required":
+                [
+                  "id",
+                  "createdAt",
+                  "recipient",
+                  "items",
+                  "subtotal",
+                  "shipping",
+                  "installation",
+                  "total",
+                  "method",
+                  "paymentStatus",
+                  "status",
+                ],
+            },
+          "OrderStatusUpdate":
+            {
+              "type": "object",
+              "properties":
+                {
+                  "status":
+                    {
+                      "type": "string",
+                      "enum": ["Đã xác nhận", "Đang giao", "Đã giao", "Đã hủy"],
+                    },
+                },
+              "required": ["status"],
+            },
+          "InventoryUpdate":
+            {
+              "type": "object",
+              "properties":
+                {
+                  "price":
+                    { "type": "integer", "minimum": 1, "maximum": 1000000000 },
+                  "stock":
+                    { "type": "integer", "minimum": 0, "maximum": 1000000 },
+                },
+              "required": ["price", "stock"],
+            },
+          "Url":
+            {
+              "type": "object",
+              "required": ["url"],
+              "properties": { "url": { "type": "string", "format": "uri" } },
+            },
+          "Message":
+            {
+              "type": "object",
+              "required": ["message"],
+              "properties": { "message": { "type": "string" } },
+            },
+          "Content":
+            {
+              "type": "object",
+              "required": ["id", "title", "body"],
+              "properties":
+                {
+                  "id": { "type": "string" },
+                  "title": { "type": "string" },
+                  "body": { "type": "string" },
+                  "image": { "type": "string" },
+                  "categoryId": { "type": "string" },
+                  "endsAt": { "type": "string" },
+                  "productIds":
+                    { "type": "array", "items": { "type": "string" } },
+                },
+            },
+          "Review":
+            {
+              "type": "object",
+              "required": ["rating", "body"],
+              "properties":
+                {
+                  "rating": { "type": "integer", "minimum": 1, "maximum": 5 },
+                  "body": { "type": "string", "minLength": 10 },
+                  "name": { "type": "string" },
+                  "created_at": { "type": "string" },
+                },
+            },
+          "StartSocialLoginInput":
+            {
+              "type": "object",
+              "properties": { "link": { "type": "boolean" } },
+            },
+          "CreatePaymentInput":
+            { "type": "object", "additionalProperties": true },
+          "CheckPaymentInput":
+            { "type": "object", "additionalProperties": true },
+          "CancelOrderInput":
+            { "type": "object", "additionalProperties": true },
+          "MomoIpnInput": { "type": "object", "additionalProperties": true },
+          "CollectCodInput": { "type": "object", "additionalProperties": true },
+          "SubscribeNewsletterInput":
+            {
+              "type": "object",
+              "required": ["email", "consent"],
+              "properties":
+                {
+                  "email": { "type": "string", "format": "email" },
+                  "consent": { "type": "boolean", "const": true },
+                },
+            },
+          "CreateSupportInput":
+            {
+              "type": "object",
+              "required": ["subject", "body"],
+              "properties":
+                {
+                  "subject": { "type": "string" },
+                  "body": { "type": "string" },
+                },
+            },
+          "ReplySupportInput":
+            {
+              "type": "object",
+              "required": ["reply"],
+              "properties": { "reply": { "type": "string" } },
+            },
+          "CreateProductInput":
+            { "type": "object", "additionalProperties": true },
+        },
+      "securitySchemes":
+        {
+          "cookieAuth":
+            { "type": "apiKey", "in": "cookie", "name": "shop_session" },
+        },
+    },
+}

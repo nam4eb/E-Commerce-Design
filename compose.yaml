@@ -1,0 +1,71 @@
+name: electronics-store
+
+services:
+  database:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-electronics_store}
+      POSTGRES_USER: ${POSTGRES_USER:-store}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-change-me}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${DOCKER_NODE_ENV:-development}
+      PORT: 5000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-store}:${POSTGRES_PASSWORD:-local-change-me}@database:5432/${POSTGRES_DB:-electronics_store}
+      SEED_CATALOG: ${SEED_CATALOG:-true}
+      PUBLIC_ORIGIN: ${DOCKER_PUBLIC_ORIGIN:-http://localhost:8080}
+      # Nginx is exactly one network hop in this Compose topology.
+      TRUST_PROXY: ${TRUST_PROXY:-1}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      FACEBOOK_APP_ID: ${FACEBOOK_APP_ID:-}
+      FACEBOOK_APP_SECRET: ${FACEBOOK_APP_SECRET:-}
+      FACEBOOK_GRAPH_VERSION: ${FACEBOOK_GRAPH_VERSION:-}
+      PAYMENT_ENV: ${PAYMENT_ENV:-sandbox}
+      PAYMENTS_LIVE_ENABLED: ${PAYMENTS_LIVE_ENABLED:-false}
+      VNPAY_TMN_CODE: ${VNPAY_TMN_CODE:-}
+      VNPAY_HASH_SECRET: ${VNPAY_HASH_SECRET:-}
+      VNPAY_QUERY_IP: ${VNPAY_QUERY_IP:-}
+      MOMO_PARTNER_CODE: ${MOMO_PARTNER_CODE:-}
+      MOMO_ACCESS_KEY: ${MOMO_ACCESS_KEY:-}
+      MOMO_SECRET_KEY: ${MOMO_SECRET_KEY:-}
+      CONTACT_PHONE: ${CONTACT_PHONE:-}
+      CONTACT_ZALO_URL: ${CONTACT_ZALO_URL:-}
+      CONTACT_FACEBOOK_URL: ${CONTACT_FACEBOOK_URL:-}
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5000/api/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  postgres-data:

@@ -1,0 +1,13 @@
+.git
+.data
+.env
+.env.*
+!.env.example
+node_modules
+**/node_modules
+**/dist
+**/*.tsbuildinfo
+.cache
+.local
+coverage
+tmp

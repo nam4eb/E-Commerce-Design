@@ -1,6 +1,8 @@
-# Base E-Commerce
+# Điện Máy 365
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Cửa hàng điện máy với catalog API, tài khoản, giỏ hàng, đặt hàng COD và quản trị đơn/tồn kho.
+
+Xem [hướng dẫn chạy, API và kiểm thử](docs/commerce.md) và [.env.example](.env.example).
 
 ## Run & Operate
 
@@ -43,3 +45,20 @@ _Populate as you build — sharp edges, "always run X before Y" rules._
 ## Pointers
 
 - See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+
+Hướng dẫn tích hợp: [Google, Facebook, VNPAY và MoMo](docs/social-login-payments.md). Kiểm tra cấu hình: `node scripts/check-config.mjs`.
+
+## Chạy bằng Docker
+
+Docker Compose dựng ba dịch vụ: Nginx phục vụ giao diện và proxy `/api`, API Node.js, PostgreSQL có volume lưu dữ liệu.
+
+```powershell
+Copy-Item .env.example .env
+docker compose config
+docker compose up --build -d
+docker compose ps
+```
+
+Mở `http://localhost:8080`. Xem log bằng `docker compose logs -f api`; dừng bằng `docker compose down`. Lệnh `down` giữ dữ liệu PostgreSQL. Chỉ dùng `docker compose down -v` khi chủ động muốn xóa toàn bộ database Docker.
+
+Trong `.env`, `DOCKER_PUBLIC_ORIGIN` phải bằng URL khách truy cập (mặc định `http://localhost:8080`). Nếu đổi `WEB_PORT`, đổi cả origin. Đổi `POSTGRES_PASSWORD` trước khi triển khai và URL-encode ký tự đặc biệt nếu dùng nó trong connection URL. Production đặt `DOCKER_NODE_ENV=production`, HTTPS origin, bộ khóa production và `PAYMENTS_LIVE_ENABLED=true` sau nghiệm thu. TLS nên kết thúc tại reverse proxy phía trước service `web`; chỉ công khai cổng web, không công khai PostgreSQL. Mặc định tin đúng một proxy hop (`TRUST_PROXY=1`); điều chỉnh nếu topology production khác.

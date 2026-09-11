@@ -1,20 +1,144 @@
-// Export your models here. Add one export per file
-// export * from "./posts";
-//
-// Each model/table should ideally be split into different files.
-// Each model/table should define a Drizzle table, insert schema, and types:
-//
-//   import { pgTable, text, serial } from "drizzle-orm/pg-core";
-//   import { createInsertSchema } from "drizzle-zod";
-//   import { z } from "zod/v4";
-//
-//   export const postsTable = pgTable("posts", {
-//     id: serial("id").primaryKey(),
-//     title: text("title").notNull(),
-//   });
-//
-//   export const insertPostSchema = createInsertSchema(postsTable).omit({ id: true });
-//   export type InsertPost = z.infer<typeof insertPostSchema>;
-//   export type Post = typeof postsTable.$inferSelect;
+import {
+  pgTable,
+  text,
+  integer,
+  bigint,
+  uniqueIndex,
+  index,
+  check,
+  primaryKey,
+} from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
-export {}
+// Keep aligned with the portable bootstrap in ../commerce.ts.
+export const shopProducts = pgTable(
+  "shop_products",
+  {
+    id: text("id").primaryKey(),
+    data: text("data").notNull(),
+    price: integer("price").notNull(),
+    stock: integer("stock").notNull(),
+  },
+  (t) => [
+    check("shop_products_price_check", sql`${t.price} > 0`),
+    check("shop_products_stock_check", sql`${t.stock} >= 0`),
+  ],
+);
+export const shopUsers = pgTable(
+  "shop_users",
+  {
+    id: text("id").primaryKey(),
+    email: text("email").notNull().unique(),
+    password: text("password").notNull(),
+    name: text("name").notNull(),
+    phone: text("phone").notNull().default(""),
+    address: text("address").notNull().default(""),
+    role: text("role").notNull().default("customer"),
+    wishlist: text("wishlist").notNull().default("[]"),
+  },
+  (t) => [
+    check("shop_users_role_check", sql`${t.role} IN ('customer', 'admin')`),
+  ],
+);
+export const shopSessions = pgTable("shop_sessions", {
+  token: text("token").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => shopUsers.id, { onDelete: "cascade" }),
+  expires: bigint("expires", { mode: "number" }).notNull(),
+});
+export const shopOrders = pgTable(
+  "shop_orders",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => shopUsers.id),
+    requestKey: text("request_key").notNull(),
+    requestBody: text("request_body").notNull(),
+    data: text("data").notNull(),
+    status: text("status").notNull(),
+    createdAt: text("created_at").notNull(),
+  },
+  (t) => [
+    uniqueIndex("shop_orders_user_request").on(t.userId, t.requestKey),
+    index("shop_orders_user").on(t.userId),
+  ],
+);
+export const shopIdentities = pgTable(
+  "shop_identities",
+  {
+    provider: text("provider").notNull(),
+    subject: text("subject").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => shopUsers.id),
+  },
+  (t) => [
+    primaryKey({ columns: [t.provider, t.subject] }),
+    uniqueIndex("shop_identities_provider_user").on(t.provider, t.userId),
+  ],
+);
+export const shopOAuthStates = pgTable("shop_oauth_states", {
+  state: text("state").primaryKey(),
+  browserHash: text("browser_hash").notNull(),
+  provider: text("provider").notNull(),
+  verifier: text("verifier").notNull(),
+  userId: text("user_id"),
+  expires: bigint("expires", { mode: "number" }).notNull(),
+});
+export const shopPayments = pgTable("shop_payments", {
+  orderId: text("order_id")
+    .primaryKey()
+    .references(() => shopOrders.id),
+  provider: text("provider").notNull(),
+  reference: text("reference").notNull().unique(),
+  amount: bigint("amount", { mode: "number" }).notNull(),
+  state: text("state").notNull(),
+  url: text("url").notNull().default(""),
+  transactionId: text("transaction_id").notNull().default(""),
+  updatedAt: text("updated_at").notNull(),
+});
+export const shopContent = pgTable(
+  "shop_content",
+  {
+    kind: text("kind").notNull(),
+    id: text("id").notNull(),
+    data: text("data").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.kind, t.id] })],
+);
+export const shopSubscribers = pgTable("shop_subscribers", {
+  email: text("email").primaryKey(),
+  createdAt: text("created_at").notNull(),
+  active: integer("active").notNull().default(1),
+});
+export const shopReviews = pgTable(
+  "shop_reviews",
+  {
+    productId: text("product_id")
+      .notNull()
+      .references(() => shopProducts.id),
+    userId: text("user_id")
+      .notNull()
+      .references(() => shopUsers.id),
+    rating: integer("rating").notNull(),
+    body: text("body").notNull(),
+    createdAt: text("created_at").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.productId, t.userId] }),
+    check("shop_reviews_rating_check", sql`${t.rating} BETWEEN 1 AND 5`),
+  ],
+);
+export const shopSupport = pgTable("shop_support", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => shopUsers.id),
+  subject: text("subject").notNull(),
+  body: text("body").notNull(),
+  reply: text("reply").notNull().default(""),
+  status: text("status").notNull().default("Mới"),
+  createdAt: text("created_at").notNull(),
+});
