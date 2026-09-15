@@ -86,6 +86,10 @@ export async function openCommerceDatabase() {
     `CREATE TABLE IF NOT EXISTS shop_subscribers (email TEXT PRIMARY KEY, created_at TEXT NOT NULL, active INTEGER NOT NULL DEFAULT 1)`,
     `CREATE TABLE IF NOT EXISTS shop_reviews (product_id TEXT NOT NULL REFERENCES shop_products(id), user_id TEXT NOT NULL REFERENCES shop_users(id), rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5), body TEXT NOT NULL, created_at TEXT NOT NULL, PRIMARY KEY(product_id,user_id))`,
     `CREATE TABLE IF NOT EXISTS shop_support (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES shop_users(id), subject TEXT NOT NULL, body TEXT NOT NULL, reply TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT 'Mới', created_at TEXT NOT NULL)`,
+    `CREATE TABLE IF NOT EXISTS shop_ai_chats (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES shop_users(id) ON DELETE CASCADE, title TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)`,
+    `CREATE INDEX IF NOT EXISTS shop_ai_chats_user ON shop_ai_chats(user_id,updated_at)`,
+    `CREATE TABLE IF NOT EXISTS shop_ai_messages (id TEXT PRIMARY KEY, chat_id TEXT NOT NULL REFERENCES shop_ai_chats(id) ON DELETE CASCADE, role TEXT NOT NULL CHECK(role IN ('user','assistant')), content TEXT NOT NULL, created_at TEXT NOT NULL)`,
+    `CREATE INDEX IF NOT EXISTS shop_ai_messages_chat ON shop_ai_messages(chat_id,created_at)`,
   ])
     await query(sql);
   return {

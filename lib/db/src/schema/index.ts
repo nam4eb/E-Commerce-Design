@@ -142,3 +142,35 @@ export const shopSupport = pgTable("shop_support", {
   status: text("status").notNull().default("Mới"),
   createdAt: text("created_at").notNull(),
 });
+export const shopAiChats = pgTable(
+  "shop_ai_chats",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => shopUsers.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (t) => [index("shop_ai_chats_user").on(t.userId, t.updatedAt)],
+);
+export const shopAiMessages = pgTable(
+  "shop_ai_messages",
+  {
+    id: text("id").primaryKey(),
+    chatId: text("chat_id")
+      .notNull()
+      .references(() => shopAiChats.id, { onDelete: "cascade" }),
+    role: text("role").notNull(),
+    content: text("content").notNull(),
+    createdAt: text("created_at").notNull(),
+  },
+  (t) => [
+    index("shop_ai_messages_chat").on(t.chatId, t.createdAt),
+    check(
+      "shop_ai_messages_role_check",
+      sql`${t.role} IN ('user','assistant')`,
+    ),
+  ],
+);

@@ -61,6 +61,7 @@ import {
   NewsArticle,
   PromoSection,
 } from "@/pages/store-extras";
+import { AiChat } from "@/pages/ai-chat";
 let articles: any[] = [];
 let products: Product[] = [];
 
@@ -2264,6 +2265,7 @@ function AppShell() {
       <Footer />
       <BottomNav ctx={ctx} />
       <FloatingContacts />
+      <AiChat ctx={ctx} />
       {quickView && (
         <QuickViewModal
           product={quickView}

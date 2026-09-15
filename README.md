@@ -48,6 +48,8 @@ _Populate as you build — sharp edges, "always run X before Y" rules._
 
 Hướng dẫn tích hợp: [Google, Facebook, VNPAY và MoMo](docs/social-login-payments.md). Kiểm tra cấu hình: `node scripts/check-config.mjs`.
 
+Chatbot AI tư vấn theo catalog/chính sách, streaming và lưu lịch sử cho tài khoản đăng nhập được hướng dẫn tại [docs/ai-chatbot.md](docs/ai-chatbot.md).
+
 ## Chạy bằng Docker
 
 Docker Compose dựng ba dịch vụ: Nginx phục vụ giao diện và proxy `/api`, API Node.js, PostgreSQL có volume lưu dữ liệu.

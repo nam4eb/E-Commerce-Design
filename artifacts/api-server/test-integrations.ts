@@ -18,6 +18,8 @@ export async function integrations(
   process.env.MOMO_SECRET_KEY = "secret";
   process.env.GOOGLE_CLIENT_ID = "client";
   process.env.GOOGLE_CLIENT_SECRET = "secret";
+  process.env.AI_GATEWAY_API_KEY = "ai-test-key";
+  process.env.AI_MODEL = "test/model";
   process.env.FACEBOOK_APP_ID = "fb-app";
   process.env.FACEBOOK_APP_SECRET = "fb-secret";
   process.env.FACEBOOK_GRAPH_VERSION = "v99.0"; // Deliberately mocked version; no live API calls.
@@ -35,6 +37,16 @@ export async function integrations(
     });
   globalThis.fetch = async (input: any, init: any) => {
     const url = String(input);
+    if (url === "https://ai-gateway.vercel.sh/v1/chat/completions") {
+      assert.equal(init.headers.Authorization, "Bearer ai-test-key");
+      const payload = JSON.parse(init.body);
+      assert.equal(payload.model, "test/model");
+      assert.ok(payload.messages[0].content.includes("Điện Máy 365"));
+      return new Response(
+        'data: {"choices":[{"delta":{"content":"Tư vấn "}}]}\n\ndata: {"choices":[{"delta":{"content":"thử nghiệm"}}]}\n\ndata: [DONE]\n\n',
+        { headers: { "content-type": "text/event-stream" } },
+      );
+    }
     if (url.startsWith("https://graph.facebook.com/v99.0/")) {
       if (url.includes("/oauth/access_token"))
         return response({ access_token: "fb-token" });
@@ -122,6 +134,39 @@ export async function integrations(
   const order = async (id: string) =>
     (await call("/orders/" + id, "GET", undefined, customer)).body;
   try {
+    await t.test(
+      "AI chatbot streams grounded answers and protects saved history",
+      async () => {
+        const id = randomUUID();
+        const guest = await call("/ai/chat", "POST", {
+          chatId: randomUUID(),
+          message: "Tư vấn điều hòa",
+          history: [],
+        });
+        assert.equal(guest.status, 200);
+        assert.equal(guest.text, "Tư vấn thử nghiệm");
+        const saved = await call(
+          "/ai/chat",
+          "POST",
+          { chatId: id, message: "Tư vấn tivi" },
+          customer,
+        );
+        assert.equal(saved.text, "Tư vấn thử nghiệm");
+        const chat = await call(`/ai/chats/${id}`, "GET", undefined, customer);
+        assert.deepEqual(
+          chat.body.messages.map((m: any) => m.role),
+          ["user", "assistant"],
+        );
+        assert.equal(
+          (await call(`/ai/chats/${id}`, "GET", undefined, other)).status,
+          404,
+        );
+        assert.equal(
+          (await call(`/ai/chats/${id}`, "DELETE", undefined, customer)).status,
+          200,
+        );
+      },
+    );
     await t.test(
       "Facebook rejects another app token and supports identities without email",
       async () => {

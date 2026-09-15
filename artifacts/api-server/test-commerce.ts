@@ -44,9 +44,17 @@ test("Commerce integration: authentication, orders, stock and administration", a
       },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+    const text = await res.text();
+    let parsed: any = null;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      parsed = text;
+    }
     return {
       status: res.status,
-      body: (await res.json().catch(() => null)) as any,
+      body: parsed,
+      text,
       location: res.headers.get("location") || "",
       cookies: res.headers.getSetCookie(),
       cookie: res.headers.get("set-cookie")?.split(";")[0] || "",

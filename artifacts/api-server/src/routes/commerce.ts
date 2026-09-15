@@ -23,6 +23,7 @@ import {
   paymentProviders,
 } from "./payments";
 import { registerStoreTools } from "./store-tools";
+import { aiConfig, registerAiChat } from "./ai-chat";
 const scrypt = promisify(scryptCallback);
 const hash = (value: string) =>
   createHash("sha256").update(value).digest("hex");
@@ -153,10 +154,12 @@ export async function commerceRouter() {
   registerSocialAuth(router, db, session);
   registerPayments(router, db, { auth, admin });
   await registerStoreTools(router, db, { auth, admin });
+  registerAiChat(router, db, { auth, admin });
   router.get("/config", (_req, res) =>
     res.json({
       social: socialProviders(),
       payments: paymentProviders(),
+      ai: aiConfig(),
       contact: {
         phone: process.env.CONTACT_PHONE || "",
         zalo: process.env.CONTACT_ZALO_URL || "",

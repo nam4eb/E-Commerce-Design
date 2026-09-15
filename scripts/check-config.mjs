@@ -45,6 +45,7 @@ for (const [name, keys] of Object.entries({
   ],
   VNPAY: ["VNPAY_TMN_CODE", "VNPAY_HASH_SECRET"],
   MoMo: ["MOMO_PARTNER_CODE", "MOMO_ACCESS_KEY", "MOMO_SECRET_KEY"],
+  "AI chatbot": ["AI_GATEWAY_API_KEY", "AI_MODEL"],
 })) {
   if (!keys.some((k) => env[k])) {
     console.log(`TẮT: ${name} (chưa cấu hình)`);

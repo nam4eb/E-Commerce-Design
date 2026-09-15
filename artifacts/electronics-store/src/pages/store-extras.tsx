@@ -14,6 +14,7 @@ export type ShopConfig = {
     environment: string;
   };
   contact: { phone: string; zalo: string; facebook: string };
+  ai: { enabled: boolean; model: string };
 };
 export function useShopConfig() {
   const [config, set] = useState<ShopConfig | null>(null);
@@ -479,9 +480,12 @@ export function RecentlyViewed({ ctx }: { ctx: StoreContext }) {
   );
 }
 export function ContactLinks() {
-  const c = useShopConfig()?.contact;
+  const config = useShopConfig();
+  const c = config?.contact;
   return (
-    <div className="fixed bottom-16 right-3 z-40 flex gap-2 md:bottom-5">
+    <div
+      className={`fixed bottom-16 z-40 flex gap-2 md:bottom-5 ${config?.ai.enabled ? "right-20" : "right-3"}`}
+    >
       {c?.phone && (
         <a className={button} href={`tel:${c.phone}`}>
           Gọi hỗ trợ
