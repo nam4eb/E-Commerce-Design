@@ -2,6 +2,7 @@ import type { Router } from "express";
 import { randomUUID } from "node:crypto";
 import { check, HttpError, type Guards, type ShopDB } from "../lib/shop-shared";
 import { pages, news } from "../data/content-seed";
+import { registerProductImport } from "./product-import";
 const clean = (v: unknown, max = 1000) =>
   typeof v === "string" ? v.trim().slice(0, max) : "";
 export async function registerStoreTools(
@@ -9,6 +10,7 @@ export async function registerStoreTools(
   db: ShopDB,
   { auth, admin }: Guards,
 ) {
+  registerProductImport(router, db, { auth, admin });
   await db.transaction(async (q) => {
     const marker = await q(
       "INSERT INTO shop_content (kind,id,data) VALUES ('system','content-seed','{}') ON CONFLICT(kind,id) DO NOTHING RETURNING id",

@@ -14,7 +14,12 @@ export type ShopConfig = {
     environment: string;
   };
   contact: { phone: string; zalo: string; facebook: string };
-  ai: { enabled: boolean; model: string };
+  ai: {
+    enabled: boolean;
+    providerEnabled: boolean;
+    model: string;
+    syncEnabled: boolean;
+  };
 };
 export function useShopConfig() {
   const [config, set] = useState<ShopConfig | null>(null);

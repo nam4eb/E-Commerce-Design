@@ -75,6 +75,8 @@ export async function openCommerceDatabase() {
   }
   for (const sql of [
     `CREATE TABLE IF NOT EXISTS shop_products (id TEXT PRIMARY KEY, data TEXT NOT NULL, price INTEGER NOT NULL CHECK(price > 0), stock INTEGER NOT NULL CHECK(stock >= 0))`,
+    `CREATE TABLE IF NOT EXISTS shop_product_drafts (id TEXT PRIMARY KEY, data TEXT NOT NULL, source_sheet TEXT NOT NULL, import_batch TEXT NOT NULL, created_at TEXT NOT NULL)`,
+    `CREATE INDEX IF NOT EXISTS shop_product_drafts_batch ON shop_product_drafts(import_batch,created_at)`,
     `CREATE TABLE IF NOT EXISTS shop_users (id TEXT PRIMARY KEY, email TEXT NOT NULL UNIQUE, password TEXT NOT NULL, name TEXT NOT NULL, phone TEXT NOT NULL DEFAULT '', address TEXT NOT NULL DEFAULT '', role TEXT NOT NULL DEFAULT 'customer' CHECK(role IN ('customer','admin')), wishlist TEXT NOT NULL DEFAULT '[]')`,
     `CREATE TABLE IF NOT EXISTS shop_sessions (token TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES shop_users(id) ON DELETE CASCADE, expires BIGINT NOT NULL)`,
     `CREATE TABLE IF NOT EXISTS shop_orders (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES shop_users(id), request_key TEXT NOT NULL, request_body TEXT NOT NULL, data TEXT NOT NULL, status TEXT NOT NULL, created_at TEXT NOT NULL, UNIQUE(user_id, request_key))`,
@@ -88,10 +90,27 @@ export async function openCommerceDatabase() {
     `CREATE TABLE IF NOT EXISTS shop_support (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES shop_users(id), subject TEXT NOT NULL, body TEXT NOT NULL, reply TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT 'Mới', created_at TEXT NOT NULL)`,
     `CREATE TABLE IF NOT EXISTS shop_ai_chats (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES shop_users(id) ON DELETE CASCADE, title TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)`,
     `CREATE INDEX IF NOT EXISTS shop_ai_chats_user ON shop_ai_chats(user_id,updated_at)`,
-    `CREATE TABLE IF NOT EXISTS shop_ai_messages (id TEXT PRIMARY KEY, chat_id TEXT NOT NULL REFERENCES shop_ai_chats(id) ON DELETE CASCADE, role TEXT NOT NULL CHECK(role IN ('user','assistant')), content TEXT NOT NULL, created_at TEXT NOT NULL)`,
+    `CREATE TABLE IF NOT EXISTS shop_ai_messages (id TEXT PRIMARY KEY, chat_id TEXT NOT NULL REFERENCES shop_ai_chats(id) ON DELETE CASCADE, role TEXT NOT NULL CHECK(role IN ('user','assistant')), content TEXT NOT NULL, intent TEXT, product_id TEXT, model TEXT, input_tokens INTEGER, output_tokens INTEGER, latency_ms INTEGER, response_type TEXT, created_at TEXT NOT NULL)`,
     `CREATE INDEX IF NOT EXISTS shop_ai_messages_chat ON shop_ai_messages(chat_id,created_at)`,
   ])
     await query(sql);
+  // Portable, idempotent migration for databases created before chatbot metadata.
+  for (const definition of [
+    "intent TEXT",
+    "product_id TEXT",
+    "model TEXT",
+    "input_tokens INTEGER",
+    "output_tokens INTEGER",
+    "latency_ms INTEGER",
+    "response_type TEXT",
+  ])
+    try {
+      await query(`ALTER TABLE shop_ai_messages ADD COLUMN ${definition}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message.toLowerCase() : "";
+      if (!message.includes("duplicate") && !message.includes("already exists"))
+        throw error;
+    }
   return {
     query,
     transaction,

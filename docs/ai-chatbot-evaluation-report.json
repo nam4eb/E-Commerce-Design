@@ -1,0 +1,136 @@
+{
+  "generatedAt": "2026-09-16T08:18:01.579Z",
+  "dataset": "D:\\Project\\E-Commerce-Design\\docs\\ai_chatbot_training_dataset.jsonl",
+  "splits": [
+    "validation",
+    "test"
+  ],
+  "records": 236,
+  "metrics": {
+    "intentAccuracy": 100,
+    "skillRoutingAccuracy": 100,
+    "criticalIntentAccuracy": 100,
+    "entityExtractionAccuracy": 98.98,
+    "forbiddenHallucinationViolations": 0
+  },
+  "byIntent": {
+    "CATEGORY_DISCOVERY": {
+      "total": 15,
+      "correct": 15,
+      "accuracy": 100
+    },
+    "PRODUCT_SEARCH_FUZZY": {
+      "total": 14,
+      "correct": 14,
+      "accuracy": 100
+    },
+    "BEST_SELLER": {
+      "total": 14,
+      "correct": 14,
+      "accuracy": 100
+    },
+    "POPULAR_TRENDING": {
+      "total": 13,
+      "correct": 13,
+      "accuracy": 100
+    },
+    "BUDGET_SEARCH": {
+      "total": 14,
+      "correct": 14,
+      "accuracy": 100
+    },
+    "REFRIGERATOR_SIZING": {
+      "total": 15,
+      "correct": 15,
+      "accuracy": 100
+    },
+    "WATER_HEATER_ADVICE": {
+      "total": 10,
+      "correct": 10,
+      "accuracy": 100
+    },
+    "AIR_PURIFIER_ADVICE": {
+      "total": 12,
+      "correct": 12,
+      "accuracy": 100
+    },
+    "PRODUCT_COMPARE": {
+      "total": 12,
+      "correct": 12,
+      "accuracy": 100
+    },
+    "FEATURE_COMPARE": {
+      "total": 11,
+      "correct": 11,
+      "accuracy": 100
+    },
+    "ENERGY_ESTIMATE": {
+      "total": 14,
+      "correct": 14,
+      "accuracy": 100
+    },
+    "AFTER_SALES": {
+      "total": 14,
+      "correct": 14,
+      "accuracy": 100
+    },
+    "COMMERCIAL_B2B": {
+      "total": 14,
+      "correct": 14,
+      "accuracy": 100
+    },
+    "UNKNOWN_DATA": {
+      "total": 14,
+      "correct": 14,
+      "accuracy": 100
+    },
+    "DRYER_ADVICE": {
+      "total": 13,
+      "correct": 13,
+      "accuracy": 100
+    },
+    "VACUUM_ADVICE": {
+      "total": 10,
+      "correct": 10,
+      "accuracy": 100
+    },
+    "PRICE_RANKING": {
+      "total": 3,
+      "correct": 3,
+      "accuracy": 100
+    },
+    "FEATURE_RANKING": {
+      "total": 3,
+      "correct": 3,
+      "accuracy": 100
+    },
+    "PRODUCT_STOCK": {
+      "total": 3,
+      "correct": 3,
+      "accuracy": 100
+    },
+    "AIR_CONDITIONER_SIZING": {
+      "total": 6,
+      "correct": 6,
+      "accuracy": 100
+    },
+    "MULTI_CONSTRAINT_SEARCH": {
+      "total": 12,
+      "correct": 12,
+      "accuracy": 100
+    }
+  },
+  "failedCases": [],
+  "failedEntityChecks": [
+    {
+      "id": "FRIDGE_SIZE_001-13",
+      "key": "people",
+      "expected": "extract"
+    },
+    {
+      "id": "FRIDGE_SIZE_001-15",
+      "key": "people",
+      "expected": "extract"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { randomUUID, generateKeyPairSync, sign } from "node:crypto";
 import { momoSignature, vnpSignature } from "./src/routes/payments";
+import ExcelJS from "exceljs";
 
 export async function integrations(
   t: any,
@@ -41,11 +42,12 @@ export async function integrations(
       assert.equal(init.headers.Authorization, "Bearer ai-test-key");
       const payload = JSON.parse(init.body);
       assert.equal(payload.model, "test/model");
-      assert.ok(payload.messages[0].content.includes("Điện Máy 365"));
-      return new Response(
-        'data: {"choices":[{"delta":{"content":"Tư vấn "}}]}\n\ndata: {"choices":[{"delta":{"content":"thử nghiệm"}}]}\n\ndata: [DONE]\n\n',
-        { headers: { "content-type": "text/event-stream" } },
-      );
+      assert.ok(payload.messages[0].content.includes("trợ lý sản phẩm"));
+      return response({
+        model: "test/model",
+        choices: [{ message: { content: "Thông tin chính sách thử nghiệm" } }],
+        usage: { prompt_tokens: 10, completion_tokens: 5 },
+      });
     }
     if (url.startsWith("https://graph.facebook.com/v99.0/")) {
       if (url.includes("/oauth/access_token"))
@@ -135,23 +137,55 @@ export async function integrations(
     (await call("/orders/" + id, "GET", undefined, customer)).body;
   try {
     await t.test(
-      "AI chatbot streams grounded answers and protects saved history",
+      "AI chatbot uses verified data, sizes rooms and protects saved history",
       async () => {
         const id = randomUUID();
-        const guest = await call("/ai/chat", "POST", {
-          chatId: randomUUID(),
-          message: "Tư vấn điều hòa",
-          history: [],
+        const before = await call("/ai/chats", "GET", undefined, customer);
+        const price = await call("/ai/chat", "POST", {
+          message: "ATKF35XVMV giá bao nhiêu?",
         });
-        assert.equal(guest.status, 200);
-        assert.equal(guest.text, "Tư vấn thử nghiệm");
+        assert.equal(price.status, 200);
+        assert.equal(price.body.intent, "PRODUCT_PRICE");
+        assert.match(price.body.message, /10\.000\.000/);
+        assert.equal(price.body.context.lastProductId, "ac-02");
+        const stock = await call("/ai/chat", "POST", {
+          message: "Còn hàng không?",
+          context: price.body.context,
+        });
+        assert.equal(stock.body.intent, "PRODUCT_STOCK");
+        const currentProduct = (await call("/products")).body.find(
+          (item: any) => item.id === "ac-02",
+        );
+        assert.match(
+          stock.body.message,
+          currentProduct.stock > 0
+            ? new RegExp(`còn ${currentProduct.stock} sản phẩm`, "i")
+            : /tạm hết hàng/i,
+        );
+        const sizing = await call("/ai/chat", "POST", {
+          message: "Phòng ngủ 20m2 tầng áp mái hướng Tây dùng điều hòa nào?",
+        });
+        assert.equal(sizing.body.intent, "AIR_CONDITIONER_HEAT_LOAD");
+        assert.equal(sizing.body.recommendation.recommendedBTU, 18000);
+        assert.equal(sizing.body.recommendation.heatLoad, "HIGH");
+        assert.equal(sizing.body.products[0].productId, "ac-07");
+        const bestSeller = await call("/ai/chat", "POST", {
+          message: "top những điều hòa Midea bán chạy nhất",
+        });
+        assert.equal(bestSeller.body.intent, "BEST_SELLER");
+        assert.equal(bestSeller.body.responseType, "limitation");
+        assert.match(bestSeller.body.message, /chưa có đủ dữ liệu đơn đã giao/i);
+        assert.equal(
+          (await call("/ai/chats", "GET", undefined, customer)).body.length,
+          before.body.length,
+        );
         const saved = await call(
           "/ai/chat",
           "POST",
-          { chatId: id, message: "Tư vấn tivi" },
+          { conversationId: id, message: "ATKF35XVMV còn hàng không?" },
           customer,
         );
-        assert.equal(saved.text, "Tư vấn thử nghiệm");
+        assert.equal(saved.body.intent, "PRODUCT_STOCK");
         const chat = await call(`/ai/chats/${id}`, "GET", undefined, customer);
         assert.deepEqual(
           chat.body.messages.map((m: any) => m.role),
@@ -164,6 +198,142 @@ export async function integrations(
         assert.equal(
           (await call(`/ai/chats/${id}`, "DELETE", undefined, customer)).status,
           200,
+        );
+        const syncId = randomUUID();
+        const synced = await call(
+          "/ai/conversations/sync",
+          "POST",
+          {
+            conversationId: syncId,
+            messages: [
+              { role: "user", content: "Xin chào" },
+              { role: "assistant", content: "Xin chào bạn" },
+            ],
+          },
+          customer,
+        );
+        assert.equal(synced.body.imported, 2);
+        assert.equal(
+          (await call(`/ai/chats/${syncId}`, "GET", undefined, customer)).body
+            .messages.length,
+          2,
+        );
+      },
+    );
+    await t.test(
+      "admin previews Excel imports, updates existing metadata and publishes drafts",
+      async () => {
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet("TestBrand");
+        const headers = [
+          "id",
+          "brand",
+          "category",
+          "subcategory",
+          "product_name",
+          "model",
+          "sku",
+          "slug",
+          "short_description",
+          "description",
+          "origin",
+          "warranty",
+          "status",
+          "source_url",
+          "main_image",
+        ];
+        sheet.addRow(["DANH MỤC SẢN PHẨM"]);
+        sheet.addRow([]);
+        sheet.addRow([]);
+        sheet.addRow(headers);
+        sheet.addRow([
+          "ac-08",
+          "Panasonic",
+          "air-conditioner",
+          "wall-mounted",
+          "Điều hòa Panasonic N9WKH-8 cập nhật",
+          "N9WKH-8",
+          "N9WKH-8",
+          "panasonic-n9wkh-8",
+          "Mô tả ngắn",
+          "Mô tả dài",
+          "Việt Nam",
+          '{"duration":12,"unit":"month"}',
+          "active",
+          "https://example.test/ac-08",
+          "https://example.test/ac-08.jpg",
+        ]);
+        sheet.addRow([
+          "excel-new-01",
+          "TestBrand",
+          "air-conditioner",
+          "wall-mounted",
+          "Điều hòa TestBrand 12000 BTU",
+          "TEST-120",
+          "TEST-120",
+          "testbrand-test-120",
+          "Mô tả ngắn",
+          "Mô tả dài",
+          "Việt Nam",
+          '{"duration":24,"unit":"month"}',
+          "active",
+          "https://example.test/test-120",
+          "https://example.test/test-120.jpg",
+        ]);
+        const buffer = await workbook.xlsx.writeBuffer();
+        const form = new FormData();
+        form.append(
+          "file",
+          new Blob([new Uint8Array(buffer)], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          }),
+          "products.xlsx",
+        );
+        const preview = await call(
+          "/admin/products/import/preview",
+          "POST",
+          form,
+          admin,
+        );
+        assert.equal(preview.status, 200);
+        assert.equal(preview.body.total, 2);
+        assert.equal(preview.body.updates, 1);
+        assert.equal(preview.body.drafts, 1);
+        const committed = await call(
+          `/admin/products/import/${preview.body.token}/commit`,
+          "POST",
+          {},
+          admin,
+        );
+        assert.deepEqual(committed.body, {
+          updated: 1,
+          published: 0,
+          drafted: 1,
+          skipped: 0,
+        });
+        const draft = (
+          await call("/admin/product-drafts", "GET", undefined, admin)
+        ).body.find((item: any) => item.id === "excel-new-01");
+        assert.equal(draft.model, "TEST-120");
+        assert.equal(
+          (
+            await call(
+              "/admin/product-drafts/excel-new-01/publish",
+              "POST",
+              { price: 9990000, stock: 7 },
+              admin,
+            )
+          ).status,
+          200,
+        );
+        const catalog = (await call("/products")).body;
+        assert.equal(
+          catalog.find((item: any) => item.id === "excel-new-01").price,
+          9990000,
+        );
+        assert.equal(
+          catalog.find((item: any) => item.id === "ac-08").name,
+          "Điều hòa Panasonic N9WKH-8 cập nhật",
         );
       },
     );

@@ -24,6 +24,17 @@ export const shopProducts = pgTable(
     check("shop_products_stock_check", sql`${t.stock} >= 0`),
   ],
 );
+export const shopProductDrafts = pgTable(
+  "shop_product_drafts",
+  {
+    id: text("id").primaryKey(),
+    data: text("data").notNull(),
+    sourceSheet: text("source_sheet").notNull(),
+    importBatch: text("import_batch").notNull(),
+    createdAt: text("created_at").notNull(),
+  },
+  (t) => [index("shop_product_drafts_batch").on(t.importBatch, t.createdAt)],
+);
 export const shopUsers = pgTable(
   "shop_users",
   {
@@ -164,6 +175,13 @@ export const shopAiMessages = pgTable(
       .references(() => shopAiChats.id, { onDelete: "cascade" }),
     role: text("role").notNull(),
     content: text("content").notNull(),
+    intent: text("intent"),
+    productId: text("product_id"),
+    model: text("model"),
+    inputTokens: integer("input_tokens"),
+    outputTokens: integer("output_tokens"),
+    latencyMs: integer("latency_ms"),
+    responseType: text("response_type"),
     createdAt: text("created_at").notNull(),
   },
   (t) => [

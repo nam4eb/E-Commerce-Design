@@ -1,0 +1,62 @@
+[
+  {
+    "input": "FTKB35 giá bao nhiêu?",
+    "expectedIntent": "PRODUCT_PRICE",
+    "expectedEntities": { "model": "FTKB35" },
+    "expectedSkill": null,
+    "expectedBehavior": "Resolve exact model if present; otherwise ask for a valid model. Never invent price."
+  },
+  {
+    "input": "FTKB35 còn hàng không?",
+    "expectedIntent": "PRODUCT_STOCK",
+    "expectedEntities": { "model": "FTKB35" },
+    "expectedSkill": null,
+    "expectedBehavior": "Return current database stock for the resolved product."
+  },
+  {
+    "input": "Điều hòa Daikin 12000 có mẫu nào?",
+    "expectedIntent": "PRODUCT_SEARCH",
+    "expectedEntities": {
+      "brand": "Daikin",
+      "category": "air-conditioner",
+      "capacityBTU": 12000
+    },
+    "expectedSkill": null,
+    "expectedBehavior": "Return at most five matching catalog products, preferring in-stock."
+  },
+  {
+    "input": "Tao có phòng ngủ khoảng 20m2 thì dùng điều hòa bao nhiêu BTU?",
+    "expectedIntent": "PRODUCT_ADVICE",
+    "expectedEntities": { "area": 20, "roomType": "bedroom" },
+    "expectedSkill": "AIR_CONDITIONER_SIZING",
+    "expectedBehavior": "Calculate 12000 BTU under normal conditions and retrieve matching products."
+  },
+  {
+    "input": "Phòng 20m2 tầng áp mái hướng Tây thì sao?",
+    "expectedIntent": "PRODUCT_ADVICE",
+    "expectedEntities": { "area": 20, "topFloor": true, "direction": "west" },
+    "expectedSkill": "AIR_CONDITIONER_SIZING",
+    "expectedBehavior": "Detect high heat load, increase to the next commercial capacity and explain why."
+  },
+  {
+    "input": "Điều hòa inverter là gì?",
+    "expectedIntent": "PRODUCT_INFO",
+    "expectedEntities": { "category": "air-conditioner", "inverter": true },
+    "expectedSkill": null,
+    "expectedBehavior": "Use verified product or knowledge data; do not invent specifications."
+  },
+  {
+    "input": "Bảo hành điều hòa bao lâu?",
+    "expectedIntent": "WARRANTY",
+    "expectedEntities": { "category": "air-conditioner" },
+    "expectedSkill": null,
+    "expectedBehavior": "Answer only from product specification or store policy."
+  },
+  {
+    "input": "Tao cần điều hòa khoảng dưới 12 triệu.",
+    "expectedIntent": "PRODUCT_SEARCH",
+    "expectedEntities": { "category": "air-conditioner", "maxPrice": 12000000 },
+    "expectedSkill": null,
+    "expectedBehavior": "Filter current database price and return no more than five products."
+  }
+]

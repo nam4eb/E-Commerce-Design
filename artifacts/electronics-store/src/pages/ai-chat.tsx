@@ -5,38 +5,74 @@ import {
   LoaderCircle,
   MessageCircle,
   Plus,
+  RotateCcw,
   Send,
   Trash2,
   X,
 } from "lucide-react";
 import type { StoreContext } from "../App";
-import { api, readStored, saveStored } from "../lib/shop-api";
+import { api } from "../lib/shop-api";
 import { useShopConfig } from "./store-extras";
 
-type Message = { role: "user" | "assistant"; content: string };
+type Intent = string;
+type Context = {
+  lastProductId?: string;
+  lastCategoryId?: string;
+  lastIntent?: Intent;
+  constraints?: Record<string, unknown>;
+};
+type Product = {
+  productId: string;
+  name: string;
+  slug: string;
+  image: string;
+  price: number;
+  originalPrice?: number;
+  stock: number;
+  brand: string;
+};
+type Message = {
+  role: "user" | "assistant";
+  content: string;
+  products?: Product[];
+};
 type Chat = { id: string; title: string; updated_at: string };
+type ChatResponse = {
+  message: string;
+  intent: Intent;
+  responseType: string;
+  context: Context;
+  products?: Product[];
+  conversationId: string;
+};
 const newId = () => crypto.randomUUID();
+const money = (value: number) =>
+  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
+    value,
+  );
+const track = (name: string, detail?: Record<string, unknown>) =>
+  window.dispatchEvent(
+    new CustomEvent("shop:analytics", { detail: { name, ...detail } }),
+  );
 
 export function AiChat({ ctx }: { ctx: StoreContext }) {
   const config = useShopConfig();
   const [open, setOpen] = useState(false);
-  const [chatId, setChatId] = useState<string>(() =>
-    readStored("shop-ai-chat-id", newId()),
-  );
-  const [messages, setMessages] = useState<Message[]>(() =>
-    readStored("shop-ai-messages", []),
-  );
+  const [conversationId, setConversationId] = useState<string>(newId);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [context, setContext] = useState<Context>({});
   const [chats, setChats] = useState<Chat[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [retryText, setRetryText] = useState("");
+  const previousUser = useRef(ctx.user?.id);
   const controller = useRef<AbortController | null>(null);
   const bottom = useRef<HTMLDivElement | null>(null);
-  useEffect(
-    () => bottom.current?.scrollIntoView({ behavior: "smooth" }),
-    [messages, open],
-  );
+  useEffect(() => {
+    bottom.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, open]);
   useEffect(() => {
     if (ctx.user && open)
       api<Chat[]>("/ai/chats")
@@ -44,89 +80,81 @@ export function AiChat({ ctx }: { ctx: StoreContext }) {
         .catch(() => setChats([]));
   }, [ctx.user, open]);
   useEffect(() => {
-    if (!ctx.user) {
-      saveStored("shop-ai-chat-id", chatId);
-      saveStored("shop-ai-messages", messages.slice(-12));
+    const loggedInNow = !previousUser.current && ctx.user?.id;
+    previousUser.current = ctx.user?.id;
+    if (loggedInNow && messages.length && config?.ai.syncEnabled) {
+      api<{ id: string }>("/ai/conversations/sync", "POST", {
+        conversationId,
+        messages,
+      })
+        .then((result) => setConversationId(result.id))
+        .catch((cause) => setError((cause as Error).message));
     }
-  }, [chatId, messages, ctx.user]);
+  }, [ctx.user?.id, config?.ai.syncEnabled, conversationId, messages]);
   if (!config?.ai.enabled) return null;
 
   const reset = () => {
     controller.current?.abort();
-    setChatId(newId());
+    setConversationId(newId());
     setMessages([]);
+    setContext({});
     setInput("");
     setError("");
+    setRetryText("");
     setShowHistory(false);
   };
   const load = async (id: string) => {
     try {
       const result = await api<{ messages: Message[] }>(`/ai/chats/${id}`);
-      setChatId(id);
+      setConversationId(id);
       setMessages(result.messages);
+      setContext({});
       setShowHistory(false);
       setError("");
-    } catch (e) {
-      setError((e as Error).message);
+    } catch (cause) {
+      setError((cause as Error).message);
     }
   };
-  const send = async () => {
-    const text = input.trim();
+  const send = async (override?: string) => {
+    const text = (override ?? input).trim();
     if (!text || busy) return;
-    const history = messages.slice(-10);
     setInput("");
     setError("");
+    setRetryText("");
     setBusy(true);
-    setMessages([
-      ...messages,
-      { role: "user", content: text },
-      { role: "assistant", content: "" },
-    ]);
+    setMessages((items) => [...items, { role: "user", content: text }]);
     const abort = new AbortController();
     controller.current = abort;
+    track("question_sent");
     try {
       const response = await fetch("/api/ai/chat", {
         method: "POST",
         credentials: "same-origin",
         signal: abort.signal,
         headers: { "Content-Type": "application/json", "X-Store-Request": "1" },
-        body: JSON.stringify({ chatId, message: text, history }),
+        body: JSON.stringify({ conversationId, message: text, context }),
       });
-      if (!response.ok || !response.body) {
-        const body = await response.json().catch(() => null);
+      const body = (await response.json().catch(() => null)) as
+        ChatResponse | { message?: string } | null;
+      if (!response.ok || !body || !("intent" in body))
         throw new Error(body?.message || "Chatbot chưa thể trả lời.");
-      }
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        setMessages((items) =>
-          items.map((item, i) =>
-            i === items.length - 1
-              ? { ...item, content: item.content + chunk }
-              : item,
-          ),
-        );
-      }
+      setConversationId(body.conversationId);
+      setContext(body.context);
+      setMessages((items) => [
+        ...items,
+        { role: "assistant", content: body.message, products: body.products },
+      ]);
+      if (body.products?.length)
+        track("product_recommended", { count: body.products.length });
       if (ctx.user)
         api<Chat[]>("/ai/chats")
           .then(setChats)
           .catch(() => {});
-    } catch (e) {
-      if ((e as Error).name !== "AbortError") {
-        setError((e as Error).message);
-        setMessages((items) =>
-          items.filter(
-            (item, i) =>
-              !(
-                i === items.length - 1 &&
-                item.role === "assistant" &&
-                !item.content
-              ),
-          ),
-        );
+    } catch (cause) {
+      if ((cause as Error).name !== "AbortError") {
+        setError((cause as Error).message);
+        setRetryText(text);
+        track("chat_error");
       }
     } finally {
       setBusy(false);
@@ -148,7 +176,7 @@ export function AiChat({ ctx }: { ctx: StoreContext }) {
             <div className="min-w-0 flex-1">
               <b className="block">Trợ lý Điện Máy 365</b>
               <span className="block truncate text-[11px] text-blue-100">
-                Tư vấn từ catalog và chính sách cửa hàng
+                Giá và tồn kho từ hệ thống hiện tại
               </span>
             </div>
             {ctx.user && (
@@ -189,8 +217,8 @@ export function AiChat({ ctx }: { ctx: StoreContext }) {
                     className="p-2 text-red-600"
                     onClick={async () => {
                       await api(`/ai/chats/${chat.id}`, "DELETE");
-                      setChats(chats.filter((c) => c.id !== chat.id));
-                      if (chat.id === chatId) reset();
+                      setChats(chats.filter((item) => item.id !== chat.id));
+                      if (chat.id === conversationId) reset();
                     }}
                   >
                     <Trash2 size={15} />
@@ -206,54 +234,102 @@ export function AiChat({ ctx }: { ctx: StoreContext }) {
               {!messages.length && (
                 <div className="rounded-xl border bg-white p-4 text-sm leading-6 text-slate-600">
                   <b className="text-[#173b62]">
-                    Xin chào! Tôi có thể giúp bạn:
+                    Tôi có thể kiểm tra trực tiếp:
                   </b>
                   <div className="mt-2 grid gap-2">
                     {[
-                      "Tìm điều hòa theo ngân sách",
-                      "So sánh sản phẩm trong catalog",
-                      "Giải thích chính sách giao hàng",
-                    ].map((q) => (
+                      "ATKF35XVMV giá bao nhiêu?",
+                      "ATKF35XVMV còn hàng không?",
+                      "Phòng ngủ 20m² dùng điều hòa bao nhiêu BTU?",
+                    ].map((question) => (
                       <button
-                        key={q}
+                        key={question}
                         className="rounded-lg border px-3 py-2 text-left hover:bg-blue-50"
-                        onClick={() => setInput(q)}
+                        onClick={() => setInput(question)}
                       >
-                        {q}
+                        {question}
                       </button>
                     ))}
                   </div>
                 </div>
               )}
-              {messages.map((message, i) => (
+              {messages.map((message, index) => (
                 <div
-                  key={i}
+                  key={index}
                   className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-[88%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-6 ${message.role === "user" ? "bg-[#0b4fa4] text-white" : "border bg-white text-slate-700"}`}
+                    className={`max-w-[90%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-6 ${message.role === "user" ? "bg-[#0b4fa4] text-white" : "border bg-white text-slate-700"}`}
                   >
-                    {message.content || (
-                      <LoaderCircle className="animate-spin" size={17} />
-                    )}
+                    {message.content}
+                    {message.products?.map((product) => (
+                      <a
+                        key={product.productId}
+                        href={`/products/${product.slug}`}
+                        onClick={() =>
+                          track("product_clicked", {
+                            productId: product.productId,
+                          })
+                        }
+                        className="mt-3 block overflow-hidden rounded-xl border bg-white no-underline shadow-sm"
+                      >
+                        <div className="flex gap-3 p-2">
+                          {product.image && (
+                            <img
+                              src={product.image}
+                              alt=""
+                              className="h-16 w-16 rounded-lg object-cover"
+                            />
+                          )}
+                          <div className="min-w-0">
+                            <b className="line-clamp-2 text-xs text-slate-800">
+                              {product.name}
+                            </b>
+                            <span className="mt-1 block font-bold text-red-600">
+                              {money(product.price)}
+                            </span>
+                            <span className="text-[11px] text-slate-500">
+                              {product.stock > 0
+                                ? `Còn ${product.stock}`
+                                : "Tạm hết hàng"}
+                            </span>
+                          </div>
+                        </div>
+                      </a>
+                    ))}
                   </div>
                 </div>
               ))}
+              {busy && (
+                <div className="flex justify-start">
+                  <div className="rounded-2xl border bg-white px-4 py-3">
+                    <LoaderCircle className="animate-spin" size={17} />
+                  </div>
+                </div>
+              )}
               {error && (
-                <p
+                <div
                   role="alert"
                   className="rounded-lg bg-red-50 p-3 text-sm text-red-700"
                 >
                   {error}
-                </p>
+                  {retryText && (
+                    <button
+                      className="mt-2 flex items-center gap-1 font-semibold"
+                      onClick={() => void send(retryText)}
+                    >
+                      <RotateCcw size={14} /> Thử lại
+                    </button>
+                  )}
+                </div>
               )}
               <div ref={bottom} />
             </div>
           )}
           <form
             className="border-t bg-white p-3"
-            onSubmit={(e) => {
-              e.preventDefault();
+            onSubmit={(event) => {
+              event.preventDefault();
               void send();
             }}
           >
@@ -263,14 +339,14 @@ export function AiChat({ ctx }: { ctx: StoreContext }) {
                 rows={2}
                 maxLength={2000}
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
+                onChange={(event) => setInput(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
                     void send();
                   }
                 }}
-                placeholder="Hỏi về sản phẩm hoặc chính sách..."
+                placeholder="Hỏi giá, tồn kho hoặc nhu cầu sử dụng..."
                 className="min-h-11 flex-1 resize-none rounded-xl border border-slate-300 p-3 text-sm outline-none focus:border-blue-600"
               />
               <button
@@ -282,7 +358,7 @@ export function AiChat({ ctx }: { ctx: StoreContext }) {
               </button>
             </div>
             <p className="mt-2 text-[10px] text-slate-500">
-              AI có thể nhầm. Kiểm tra thông tin quan trọng trước khi mua; không
+              AI có thể nhầm. Giá và tồn kho được kiểm tra từ hệ thống; không
               gửi OTP, mật khẩu hoặc số thẻ.
             </p>
           </form>
@@ -290,7 +366,10 @@ export function AiChat({ ctx }: { ctx: StoreContext }) {
       )}
       <button
         aria-label={open ? "Đóng trợ lý AI" : "Mở trợ lý AI"}
-        onClick={() => setOpen(!open)}
+        onClick={() => {
+          setOpen(!open);
+          if (!open) track("chat_opened");
+        }}
         className="ml-auto grid h-14 w-14 place-items-center rounded-full bg-[#0b4fa4] text-white shadow-xl transition hover:scale-105"
       >
         {open ? <X /> : <MessageCircle />}

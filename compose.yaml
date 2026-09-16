@@ -49,6 +49,7 @@ services:
       CONTACT_FACEBOOK_URL: ${CONTACT_FACEBOOK_URL:-}
       AI_GATEWAY_API_KEY: ${AI_GATEWAY_API_KEY:-}
       AI_MODEL: ${AI_MODEL:-}
+      AI_CHAT_SYNC_ENABLED: ${AI_CHAT_SYNC_ENABLED:-true}
     depends_on:
       database:
         condition: service_healthy

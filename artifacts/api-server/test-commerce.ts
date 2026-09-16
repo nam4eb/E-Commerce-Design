@@ -8,6 +8,99 @@ import { join } from "node:path";
 import express from "express";
 import { commerceRouter } from "./src/routes/commerce";
 import { openCommerceDatabase } from "@workspace/db/commerce";
+import { resolveIntent } from "./src/ai/intent";
+import { extractEntities } from "./src/ai/entities";
+import { normalizeCategory, parseBTU } from "./src/ai/normalization";
+import { calculateAirConditionerCapacity } from "./src/ai/skills/air-conditioner/calculator";
+
+test("AI intent, entity normalization and air-conditioner sizing", async (t) => {
+  const sizingCases = [
+    ["15m² normal bedroom", { area: 15, roomType: "bedroom" }, 9000],
+    ["20m² normal bedroom", { area: 20, roomType: "bedroom" }, 12000],
+    ["20m² west-facing", { area: 20, direction: "west" }, 18000],
+    ["20m² top floor", { area: 20, topFloor: true }, 18000],
+    ["25m² normal", { area: 25 }, 18000],
+    ["30m² normal", { area: 30 }, 18000],
+  ] as const;
+  for (const [name, input, expected] of sizingCases)
+    await t.test(name, () => {
+      assert.equal(
+        calculateAirConditionerCapacity(input).recommendedCommercialBTU,
+        expected,
+      );
+    });
+  await t.test("missing area", () => {
+    assert.throws(() =>
+      calculateAirConditionerCapacity({} as { area: number }),
+    );
+  });
+  await t.test("invalid area", () => {
+    assert.throws(() => calculateAirConditionerCapacity({ area: -1 }));
+  });
+  assert.equal(resolveIntent("FTKB35 giá bao nhiêu?"), "PRODUCT_PRICE");
+  assert.equal(resolveIntent("FTKB35 còn hàng không?"), "PRODUCT_STOCK");
+  assert.equal(
+    resolveIntent("Phòng ngủ 20m2 dùng điều hòa bao nhiêu BTU?"),
+    "AIR_CONDITIONER_SIZING",
+  );
+  assert.equal(
+    resolveIntent("Phòng ngủ 20m² dùng điều hòa bao nhiêu BTU?"),
+    "AIR_CONDITIONER_SIZING",
+  );
+  assert.equal(
+    resolveIntent("top những điều hòa midea bán chạy nhất"),
+    "BEST_SELLER",
+  );
+  assert.equal(
+    resolveIntent("Điều hòa Midea nào rẻ nhất?"),
+    "PRICE_RANKING",
+  );
+  assert.equal(
+    resolveIntent("Điều hòa Midea nào tiết kiệm điện nhất?"),
+    "FEATURE_RANKING",
+  );
+  assert.equal(
+    resolveIntent("Còn hàng không?", { lastProductId: "ac-02" }),
+    "PRODUCT_STOCK",
+  );
+  assert.equal(
+    resolveIntent("phong ngu 20m2 dung dieu hoa bn btu"),
+    "AIR_CONDITIONER_SIZING",
+  );
+  assert.equal(normalizeCategory("máy lạnh Daikin"), "air-conditioner");
+  assert.equal(parseBTU("điều hòa 1,5 HP"), 12000);
+  assert.equal(parseBTU("12k BTU"), 12000);
+  assert.equal(parseBTU("1,5 ngựa"), 12000);
+  assert.deepEqual(
+    extractEntities("ko, tôi muốn 18000 btu cơ", {
+      constraints: { brand: "Daikin", capacityBTU: 12000 },
+    }),
+    {
+      brand: "Daikin",
+      capacityBTU: 18000,
+      keywords: ["khong", "toi", "muon", "18000", "btu"],
+    },
+  );
+  const entities = extractEntities(
+    "Phòng ngủ 20m2 tầng áp mái hướng Tây, 4 người",
+  );
+  assert.deepEqual(
+    {
+      area: entities.area,
+      roomType: entities.roomType,
+      topFloor: entities.topFloor,
+      direction: entities.direction,
+      people: entities.people,
+    },
+    {
+      area: 20,
+      roomType: "bedroom",
+      topFloor: true,
+      direction: "west",
+      people: 4,
+    },
+  );
+});
 
 test("Commerce integration: authentication, orders, stock and administration", async (t) => {
   const dir = mkdtempSync(join(tmpdir(), "shop-test-"));
@@ -33,16 +126,22 @@ test("Commerce integration: authentication, orders, stock and administration", a
     key?: string,
     safe = true,
   ) {
+    const multipart = body instanceof FormData;
     const res = await fetch(base + path, {
       method,
       redirect: "manual",
       headers: {
-        "Content-Type": "application/json",
+        ...(multipart ? {} : { "Content-Type": "application/json" }),
         ...(safe ? { "x-store-request": "1" } : {}),
         cookie,
         ...(key ? { "idempotency-key": key } : {}),
       },
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body:
+        body === undefined
+          ? undefined
+          : multipart
+            ? body
+            : JSON.stringify(body),
     });
     const text = await res.text();
     let parsed: any = null;
