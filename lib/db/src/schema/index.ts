@@ -192,3 +192,59 @@ export const shopAiMessages = pgTable(
     ),
   ],
 );
+
+export const aiKnowledgeDocuments = pgTable(
+  "ai_knowledge_documents",
+  {
+    id: text("id").primaryKey(),
+    title: text("title").notNull(),
+    type: text("type").notNull(),
+    sourceType: text("source_type").notNull(),
+    sourceName: text("source_name").notNull(),
+    brandId: text("brand_id"),
+    categoryId: text("category_id"),
+    productId: text("product_id"),
+    model: text("model"),
+    status: text("status").notNull().default("active"),
+    version: integer("version").notNull().default(1),
+    checksum: text("checksum").notNull(),
+    content: text("content").notNull(),
+    metadata: text("metadata").notNull().default("{}"),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (t) => [
+    index("ai_knowledge_documents_scope").on(
+      t.status,
+      t.type,
+      t.productId,
+      t.brandId,
+      t.categoryId,
+    ),
+  ],
+);
+
+export const aiKnowledgeChunks = pgTable(
+  "ai_knowledge_chunks",
+  {
+    id: text("id").primaryKey(),
+    documentId: text("document_id")
+      .notNull()
+      .references(() => aiKnowledgeDocuments.id, { onDelete: "cascade" }),
+    chunkIndex: integer("chunk_index").notNull(),
+    heading: text("heading").notNull().default(""),
+    content: text("content").notNull(),
+    tokenCount: integer("token_count").notNull(),
+    metadata: text("metadata").notNull().default("{}"),
+    embedding: text("embedding").notNull(),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (t) => [
+    uniqueIndex("ai_knowledge_chunks_document_index").on(
+      t.documentId,
+      t.chunkIndex,
+    ),
+    index("ai_knowledge_chunks_document").on(t.documentId),
+  ],
+);

@@ -92,6 +92,10 @@ export async function openCommerceDatabase() {
     `CREATE INDEX IF NOT EXISTS shop_ai_chats_user ON shop_ai_chats(user_id,updated_at)`,
     `CREATE TABLE IF NOT EXISTS shop_ai_messages (id TEXT PRIMARY KEY, chat_id TEXT NOT NULL REFERENCES shop_ai_chats(id) ON DELETE CASCADE, role TEXT NOT NULL CHECK(role IN ('user','assistant')), content TEXT NOT NULL, intent TEXT, product_id TEXT, model TEXT, input_tokens INTEGER, output_tokens INTEGER, latency_ms INTEGER, response_type TEXT, created_at TEXT NOT NULL)`,
     `CREATE INDEX IF NOT EXISTS shop_ai_messages_chat ON shop_ai_messages(chat_id,created_at)`,
+    `CREATE TABLE IF NOT EXISTS ai_knowledge_documents (id TEXT PRIMARY KEY, title TEXT NOT NULL, type TEXT NOT NULL, source_type TEXT NOT NULL, source_name TEXT NOT NULL, brand_id TEXT, category_id TEXT, product_id TEXT, model TEXT, status TEXT NOT NULL DEFAULT 'active', version INTEGER NOT NULL DEFAULT 1, checksum TEXT NOT NULL, content TEXT NOT NULL, metadata TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)`,
+    `CREATE INDEX IF NOT EXISTS ai_knowledge_documents_scope ON ai_knowledge_documents(status,type,product_id,brand_id,category_id)`,
+    `CREATE TABLE IF NOT EXISTS ai_knowledge_chunks (id TEXT PRIMARY KEY, document_id TEXT NOT NULL REFERENCES ai_knowledge_documents(id) ON DELETE CASCADE, chunk_index INTEGER NOT NULL, heading TEXT NOT NULL DEFAULT '', content TEXT NOT NULL, token_count INTEGER NOT NULL, metadata TEXT NOT NULL DEFAULT '{}', embedding TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(document_id,chunk_index))`,
+    `CREATE INDEX IF NOT EXISTS ai_knowledge_chunks_document ON ai_knowledge_chunks(document_id)`,
   ])
     await query(sql);
   // Portable, idempotent migration for databases created before chatbot metadata.

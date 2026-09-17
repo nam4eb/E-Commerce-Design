@@ -37,6 +37,7 @@ export const categories: Category[] = [
 ];
 
 export const products: Product[] = [
+  ac('ac-ftkb35', 'Điều hòa Daikin Inverter 1.5 HP FTKB35ZVMV', 'Daikin', 12490000, 1, '12.000 BTU', true, 20),
   ac('ac-01', 'Điều hòa Daikin Inverter 1 HP ATKF25XVMV', 'Daikin', 10490000, 0, '9.000 BTU'),
   ac('ac-02', 'Điều hòa Daikin Inverter 1.5 HP ATKF35XVMV', 'Daikin', 12990000, 1, '12.000 BTU', true, 22),
   ac('ac-03', 'Điều hòa Panasonic Inverter 1.5 HP CU/CS-XU12ZKH-8', 'Panasonic', 13990000, 2, '12.000 BTU', true, 19),

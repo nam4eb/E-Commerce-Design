@@ -19,6 +19,8 @@ async function buildAll() {
       index: path.resolve(artifactDir, "src/index.ts"),
       "import-products": path.resolve(artifactDir, "src/import-products.ts"),
       "eval-ai-chatbot": path.resolve(artifactDir, "src/eval-ai-chatbot.ts"),
+      "index-ai-knowledge": path.resolve(artifactDir, "src/index-ai-knowledge.ts"),
+      "test-rag": path.resolve(artifactDir, "src/test-rag.ts"),
     },
     platform: "node",
     bundle: true,

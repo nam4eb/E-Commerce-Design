@@ -204,6 +204,13 @@ export function registerAiChat(router: Router, db: ShopDB, { auth }: Guards) {
       responseType: response.responseType,
       productCount: response.products?.length || 0,
       authenticated: Boolean(res.locals.user),
+      ragUsed: result.ragTrace?.ragUsed || false,
+      retrievalLatencyMs: result.ragTrace?.retrievalLatencyMs,
+      retrievedChunkCount: result.ragTrace?.retrievedChunkCount,
+      topScore: result.ragTrace?.topScore,
+      documentIds: result.ragTrace?.documentIds,
+      embeddingModel: result.ragTrace?.embeddingModel,
+      generationModel: result.generation?.model,
     });
     res.json(response);
   });

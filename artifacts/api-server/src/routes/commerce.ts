@@ -24,6 +24,8 @@ import {
 } from "./payments";
 import { registerStoreTools } from "./store-tools";
 import { aiConfig, registerAiChat } from "./ai-chat";
+import { registerKnowledgeAdmin } from "./knowledge-admin";
+import { seedKnowledge } from "../ai/rag/seed";
 const scrypt = promisify(scryptCallback);
 const hash = (value: string) =>
   createHash("sha256").update(value).digest("hex");
@@ -64,6 +66,10 @@ export async function commerceRouter() {
         "INSERT INTO shop_products (id,data,price,stock) VALUES ($1,$2,$3,$4) ON CONFLICT(id) DO NOTHING",
         [p.id, JSON.stringify(p), p.price, p.stock],
       );
+  }
+  if (process.env.SEED_AI_KNOWLEDGE !== "false") {
+    const count = Number((await db.query("SELECT COUNT(*) AS count FROM ai_knowledge_documents"))[0]?.count || 0);
+    if (!count) await seedKnowledge(db);
   }
   // Admin provisioning is explicit and never upgrades an existing customer account.
   if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
@@ -155,6 +161,7 @@ export async function commerceRouter() {
   registerPayments(router, db, { auth, admin });
   await registerStoreTools(router, db, { auth, admin });
   registerAiChat(router, db, { auth, admin });
+  registerKnowledgeAdmin(router, db, { auth, admin });
   router.get("/config", (_req, res) =>
     res.json({
       social: socialProviders(),

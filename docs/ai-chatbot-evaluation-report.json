@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-09-16T08:18:01.579Z",
+  "generatedAt": "2026-09-17T03:39:05.521Z",
   "dataset": "D:\\Project\\E-Commerce-Design\\docs\\ai_chatbot_training_dataset.jsonl",
   "splits": [
     "validation",
     "test"
   ],
-  "records": 236,
+  "records": 243,
   "metrics": {
     "intentAccuracy": 100,
     "skillRoutingAccuracy": 100,
     "criticalIntentAccuracy": 100,
-    "entityExtractionAccuracy": 98.98,
+    "entityExtractionAccuracy": 98.99,
     "forbiddenHallucinationViolations": 0
   },
   "byIntent": {
@@ -105,18 +105,38 @@
       "accuracy": 100
     },
     "PRODUCT_STOCK": {
-      "total": 3,
-      "correct": 3,
+      "total": 4,
+      "correct": 4,
       "accuracy": 100
     },
     "AIR_CONDITIONER_SIZING": {
-      "total": 6,
-      "correct": 6,
+      "total": 7,
+      "correct": 7,
       "accuracy": 100
     },
     "MULTI_CONSTRAINT_SEARCH": {
       "total": 12,
       "correct": 12,
+      "accuracy": 100
+    },
+    "PRODUCT_TECH_EXPLAIN": {
+      "total": 1,
+      "correct": 1,
+      "accuracy": 100
+    },
+    "WARRANTY": {
+      "total": 2,
+      "correct": 2,
+      "accuracy": 100
+    },
+    "RETURN_EXCHANGE": {
+      "total": 1,
+      "correct": 1,
+      "accuracy": 100
+    },
+    "PRODUCT_PRICE": {
+      "total": 1,
+      "correct": 1,
       "accuracy": 100
     }
   },

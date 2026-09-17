@@ -50,6 +50,12 @@ services:
       AI_GATEWAY_API_KEY: ${AI_GATEWAY_API_KEY:-}
       AI_MODEL: ${AI_MODEL:-}
       AI_CHAT_SYNC_ENABLED: ${AI_CHAT_SYNC_ENABLED:-true}
+      AI_EMBEDDING_MODEL: ${AI_EMBEDDING_MODEL:-local-hash-v1}
+      RAG_TOP_K: ${RAG_TOP_K:-5}
+      RAG_MIN_SCORE: ${RAG_MIN_SCORE:-0.35}
+      RAG_CHUNK_SIZE: ${RAG_CHUNK_SIZE:-900}
+      RAG_CHUNK_OVERLAP: ${RAG_CHUNK_OVERLAP:-120}
+      SEED_AI_KNOWLEDGE: ${SEED_AI_KNOWLEDGE:-true}
     depends_on:
       database:
         condition: service_healthy

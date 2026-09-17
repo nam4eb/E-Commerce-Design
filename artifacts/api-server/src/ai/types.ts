@@ -1,4 +1,6 @@
 import type { ChatIntent } from "./taxonomy";
+import type { AnswerSource } from "./rag/source-router";
+import type { KnowledgeSourceTrace } from "./rag/types";
 export type { ChatIntent } from "./taxonomy";
 
 export interface IntentResult {
@@ -82,4 +84,6 @@ export interface AIChatResponse {
     missingImportantFactors: string[];
   };
   conversationId?: string;
+  source?: AnswerSource;
+  sources?: KnowledgeSourceTrace[];
 }

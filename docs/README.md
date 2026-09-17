@@ -1,5 +1,7 @@
 # AI Chatbot Training / Evaluation Dataset
 
+RAG architecture and operation: [ai-rag.md](./ai-rag.md). Implementation status: [ai-rag-implementation-report.md](./ai-rag-implementation-report.md).
+
 Dataset này dành cho dự án **E-commerce-design**.
 
 ## Mục tiêu
@@ -110,4 +112,3 @@ Dataset này dành cho dự án **E-commerce-design**.
 5. Giữ `test` làm regression suite, không dùng để viết rules theo từng câu.
 6. Mọi skill tính toán (BTU, tải máy giặt, dung tích tủ lạnh, TV size...) phải là TypeScript deterministic logic.
 7. Sau mỗi bug thực tế, thêm 1 regression case mới vào dataset.
-

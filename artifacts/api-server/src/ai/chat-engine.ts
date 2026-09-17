@@ -1,6 +1,6 @@
 import type { ShopDB } from "../lib/shop-shared";
 import { classifyIntentHybrid } from "./intent";
-import { modelCandidates, normalizeText } from "./normalization";
+import { normalizeText } from "./normalization";
 import {
   getProduct,
   resolveProduct,
@@ -16,6 +16,17 @@ import type {
   ChatIntent,
   ExtractedEntities,
 } from "./types";
+import { retrieveRAGKnowledge } from "./rag/rag.service";
+import { resolveAnswerSource } from "./rag/source-router";
+
+export interface RAGTrace {
+  ragUsed: boolean;
+  retrievalLatencyMs: number;
+  retrievedChunkCount: number;
+  topScore: number;
+  documentIds: string[];
+  embeddingModel: string;
+}
 
 const money = (value: number) =>
   new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
@@ -35,29 +46,6 @@ function nextContext(
   };
 }
 
-async function knowledge(db: ShopDB, intent: ChatIntent) {
-  const rows = await db.query("SELECT data FROM shop_content ORDER BY kind,id");
-  const terms: Partial<Record<ChatIntent, string[]>> = {
-    WARRANTY: ["bao hanh"],
-    SHIPPING: ["giao hang", "van chuyen"],
-    RETURN_EXCHANGE: ["doi tra", "hoan tien"],
-    INSTALLATION: ["lap dat"],
-    PRODUCT_TECH_EXPLAIN: ["inverter", "cong nghe", "cspf"],
-    PRODUCT_USAGE_GUIDANCE: ["su dung", "ve sinh", "nhiet do"],
-  };
-  const wanted = terms[intent] || [];
-  return rows
-    .map((row) => JSON.parse(row.data) as { title?: string; body?: string })
-    .filter((item) =>
-      wanted.some((term) =>
-        normalizeText(`${item.title || ""} ${item.body || ""}`).includes(term),
-      ),
-    )
-    .slice(0, 2)
-    .map((item) => `${item.title}: ${String(item.body || "").slice(0, 1800)}`)
-    .join("\n");
-}
-
 function response(
   message: string,
   intent: ChatIntent,
@@ -72,6 +60,7 @@ function response(
     responseType,
     context: nextContext(intent, entities, product || products?.[0]),
     products,
+    source: resolveAnswerSource(intent),
   };
 }
 
@@ -80,31 +69,40 @@ async function verifiedPolicyAnswer(
   question: string,
   intent: ChatIntent,
   entities: ExtractedEntities,
-): Promise<{ response: AIChatResponse; generation?: GenerationResult }> {
-  const verified = await knowledge(db, intent);
-  if (!verified)
+  context: ChatContext,
+): Promise<{ response: AIChatResponse; generation?: GenerationResult; ragTrace?: RAGTrace }> {
+  const rag = await retrieveRAGKnowledge(db, question, intent, entities, context);
+  const preservedContext = {
+    ...nextContext(intent, entities),
+    lastProductId: context.lastProductId,
+    lastCategoryId: entities.category || context.lastCategoryId,
+  };
+  if (!rag.context)
     return {
-      response: response(
-        "Thông tin này chưa có trong dữ liệu đã xác minh của cửa hàng. Tôi có thể chuyển bạn sang bộ phận hỗ trợ để kiểm tra chính xác.",
+      response: { ...response(
+        "Hiện tại tôi chưa tìm thấy thông tin xác thực trong dữ liệu của hệ thống. Bạn có thể gửi tên hoặc mã model rõ hơn, hoặc liên hệ bộ phận hỗ trợ để kiểm tra chính xác.",
         intent,
         "limitation",
         entities,
-      ),
+      ), context: preservedContext },
+      ragTrace: rag.trace,
     };
   try {
-    const generation = await generateGroundedAnswer(question, verified);
+    const generation = await generateGroundedAnswer(question, rag.context);
     return {
-      response: response(
+      response: { ...response(
         generation.text,
         intent,
         "generated",
         entities,
-      ),
+      ), context: preservedContext, sources: rag.sources },
       generation,
+      ragTrace: rag.trace,
     };
   } catch {
     return {
-      response: response(verified.slice(0, 700), intent, "direct", entities),
+      response: { ...response(rag.context.slice(0, 700), intent, "direct", entities), context: preservedContext, sources: rag.sources },
+      ragTrace: rag.trace,
     };
   }
 }
@@ -113,7 +111,7 @@ export async function answerChat(
   db: ShopDB,
   message: string,
   context: ChatContext,
-): Promise<{ response: AIChatResponse; generation?: GenerationResult }> {
+): Promise<{ response: AIChatResponse; generation?: GenerationResult; ragTrace?: RAGTrace }> {
   const classification = await classifyIntentHybrid(message, context);
   let intent = classification.intent;
   const entities = classification.entities as ExtractedEntities;
@@ -335,7 +333,7 @@ export async function answerChat(
   }
 
   if (["WARRANTY", "SHIPPING", "RETURN_EXCHANGE", "INSTALLATION", "PRODUCT_TECH_EXPLAIN", "PRODUCT_USAGE_GUIDANCE"].includes(intent))
-    return verifiedPolicyAnswer(db, message, intent, entities);
+    return verifiedPolicyAnswer(db, message, intent, entities, context);
 
   if (["POPULAR_TRENDING", "UNKNOWN_DATA"].includes(intent))
     return {
