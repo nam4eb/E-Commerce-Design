@@ -1,4 +1,4 @@
-# Điện Máy 365
+# E-Commerce
 
 Cửa hàng điện máy với catalog API, tài khoản, giỏ hàng, đặt hàng COD và quản trị đơn/tồn kho.
 
