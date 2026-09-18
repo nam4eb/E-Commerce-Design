@@ -5,6 +5,7 @@ import {
   getProduct,
   resolveProduct,
   searchProducts,
+  searchProductsForSizing,
   type StoreProduct,
 } from "./product-service";
 import { generateGroundedAnswer, type GenerationResult } from "./provider";
@@ -18,6 +19,12 @@ import type {
 } from "./types";
 import { retrieveRAGKnowledge } from "./rag/rag.service";
 import { resolveAnswerSource } from "./rag/source-router";
+import {
+  consultationContext,
+  getMissingFields,
+  mergeRequirements,
+  requirementsToEntities,
+} from "./consultation-state";
 
 export interface RAGTrace {
   ragUsed: boolean;
@@ -26,6 +33,19 @@ export interface RAGTrace {
   topScore: number;
   documentIds: string[];
   embeddingModel: string;
+}
+
+export interface ConsultationTrace {
+  newEntities: ExtractedEntities;
+  previousRequirements: ChatContext["requirements"];
+  mergedRequirements: ChatContext["requirements"];
+  missingFields: string[];
+  selectedSkill: string;
+  skillInput?: Record<string, unknown>;
+  skillOutput?: Record<string, unknown>;
+  productSearchQuery?: Record<string, unknown>;
+  productResultsCount?: number;
+  responseStrategy: string;
 }
 
 const money = (value: number) =>
@@ -70,7 +90,7 @@ async function verifiedPolicyAnswer(
   intent: ChatIntent,
   entities: ExtractedEntities,
   context: ChatContext,
-): Promise<{ response: AIChatResponse; generation?: GenerationResult; ragTrace?: RAGTrace }> {
+): Promise<{ response: AIChatResponse; generation?: GenerationResult; ragTrace?: RAGTrace; consultationTrace?: ConsultationTrace }> {
   const rag = await retrieveRAGKnowledge(db, question, intent, entities, context);
   const preservedContext = {
     ...nextContext(intent, entities),
@@ -111,10 +131,21 @@ export async function answerChat(
   db: ShopDB,
   message: string,
   context: ChatContext,
-): Promise<{ response: AIChatResponse; generation?: GenerationResult; ragTrace?: RAGTrace }> {
+): Promise<{ response: AIChatResponse; generation?: GenerationResult; ragTrace?: RAGTrace; consultationTrace?: ConsultationTrace }> {
   const classification = await classifyIntentHybrid(message, context);
   let intent = classification.intent;
-  const entities = classification.entities as ExtractedEntities;
+  const newEntities = classification.entities as ExtractedEntities;
+  const requirements = mergeRequirements(context.requirements || context.constraints, newEntities);
+  let entities = { ...newEntities, ...requirementsToEntities(requirements) };
+
+  if (
+    context.pendingSkill === "AIR_CONDITIONER_SIZING" &&
+    ["CORRECTION", "FOLLOW_UP_CONTEXT", "INCOMPLETE_REQUEST", "AIR_CONDITIONER_HEAT_LOAD"].includes(intent)
+  ) intent = "AIR_CONDITIONER_SIZING";
+  if (
+    entities.category === "air-conditioner" &&
+    ["PRODUCT_ADVICE", "INCOMPLETE_REQUEST"].includes(intent)
+  ) intent = "AIR_CONDITIONER_SIZING";
 
   // Resolve semantic follow-ups from short server-validated context.
   if (intent === "FOLLOW_UP_CONTEXT" && context.lastProductId) {
@@ -153,50 +184,131 @@ export async function answerChat(
     };
 
   if (["AIR_CONDITIONER_SIZING", "AIR_CONDITIONER_HEAT_LOAD"].includes(intent)) {
-    if (!entities.areaM2)
+    const selectedSkill = "AIR_CONDITIONER_SIZING";
+    const missingFields = getMissingFields(selectedSkill, requirements);
+    if (missingFields.includes("areaM2"))
       return {
-        response: response(
+        response: { ...response(
           "Phòng cần lắp khoảng bao nhiêu m²?",
           intent,
           "clarification",
           entities,
-        ),
+        ), context: {
+          ...consultationContext(context, requirements, selectedSkill, missingFields),
+          lastIntent: intent,
+          lastCategoryId: "air-conditioner",
+        } },
+        consultationTrace: {
+          newEntities,
+          previousRequirements: context.requirements,
+          mergedRequirements: requirements,
+          missingFields,
+          selectedSkill,
+          responseStrategy: "ASK_ONE_REQUIRED_FIELD",
+        },
       };
     const sizing = calculateAirConditionerCapacity({
-      area: entities.areaM2,
+      area: requirements.areaM2!,
       ceilingHeight: entities.ceilingHeight,
       roomType: entities.roomType,
       direction: entities.direction,
       topFloor: entities.topFloor,
+      connectedKitchen: entities.connectedKitchen,
+      openSpace: entities.openSpace,
       people: entities.people,
       largeGlassArea: entities.largeGlassArea,
       heatSources: entities.heatSources,
     });
-    // Retrieval happens only after deterministic sizing and uses the commercial class.
-    const products = await searchProducts(db, {
-      ...entities,
-      category: "air-conditioner",
-      capacityBTU: sizing.recommendedCommercialBTU,
-      inStock: true,
-    });
+    // Catalog retrieval happens only after the deterministic technical result.
+    const products = await searchProductsForSizing(
+      db,
+      { ...entities, category: "air-conditioner" },
+      sizing.primaryCommercialBTU,
+      sizing.alternativeCommercialBTU,
+    );
+    const exactCount = products.filter((product) => product.technicalMatch === "EXACT_MATCH").length;
+    const higherCount = products.filter((product) => product.technicalMatch === "ALTERNATIVE_HIGHER_CAPACITY").length;
+    const factorText = sizing.heatLoadFactors.length
+      ? ` Các yếu tố tăng tải đã tính: ${sizing.heatLoadFactors.join(", ")}.`
+      : " Tôi đang giả định điều kiện phòng thông thường.";
+    const capacityText = sizing.alternativeCommercialBTU && sizing.primaryCommercialBTU < sizing.alternativeCommercialBTU
+      ? `${sizing.primaryCommercialBTU.toLocaleString("vi-VN")} BTU vẫn có thể phù hợp; nếu nắng/nhiệt thực tế mạnh hoặc kéo dài, có thể cân nhắc ${sizing.alternativeCommercialBTU.toLocaleString("vi-VN")} BTU.`
+      : `Mức thương mại ưu tiên là ${sizing.primaryCommercialBTU.toLocaleString("vi-VN")} BTU (${sizing.recommendedHP} HP).`;
+    const catalogText = exactCount
+      ? ` Hiện có ${exactCount} mẫu đúng mức ưu tiên đang còn hàng${higherCount ? ` và ${higherCount} mẫu công suất cao hơn được ghi rõ là phương án thay thế` : ""}.`
+      : higherCount
+        ? ` Hiện chưa có mẫu ${sizing.primaryCommercialBTU.toLocaleString("vi-VN")} BTU phù hợp đang còn hàng; có ${higherCount} mẫu công suất cao hơn, chỉ là phương án thay thế.`
+        : ` Hiện catalog chưa có mẫu ${sizing.primaryCommercialBTU.toLocaleString("vi-VN")} BTU đúng mức ưu tiên đang còn hàng.`;
     return {
       response: {
         ...response(
-          `Với phòng ${entities.areaM2} m², tải lạnh ước tính khoảng ${sizing.estimatedBTU.toLocaleString("vi-VN")} BTU; nên chọn dòng ${sizing.recommendedCommercialBTU.toLocaleString("vi-VN")} BTU (${sizing.recommendedHP} HP).${sizing.heatLoad === "HIGH" ? " Tôi đã tăng công suất do phòng có tải nhiệt cao." : " Mức này áp dụng theo các điều kiện bạn đã cung cấp."}${products.length ? ` Có ${products.length} mẫu đúng công suất đang còn hàng.` : " Hiện chưa có mẫu đúng công suất đang còn hàng trong catalog."}`,
+          `Với phòng ${requirements.areaM2} m², tải lạnh ước tính khoảng ${sizing.estimatedBTU.toLocaleString("vi-VN")} BTU, phạm vi tham khảo ${sizing.recommendedRangeBTU.min.toLocaleString("vi-VN")}–${sizing.recommendedRangeBTU.max.toLocaleString("vi-VN")} BTU. ${capacityText}${factorText}${catalogText}`,
           intent,
           "advice",
-          { ...entities, capacityBTU: sizing.recommendedCommercialBTU },
+          { ...entities, capacityBTU: sizing.primaryCommercialBTU },
           undefined,
           products,
         ),
+        context: {
+          ...consultationContext(
+            context,
+            { ...requirements, capacityBTU: sizing.primaryCommercialBTU },
+            selectedSkill,
+            [],
+            products.map((product) => product.productId),
+          ),
+          lastIntent: intent,
+          lastCategoryId: "air-conditioner",
+        },
         recommendation: {
           type: "AIR_CONDITIONER",
           estimatedBTU: sizing.estimatedBTU,
-          recommendedBTU: sizing.recommendedCommercialBTU,
+          recommendedBTU: sizing.primaryCommercialBTU,
+          recommendedRangeBTU: sizing.recommendedRangeBTU,
+          primaryCommercialBTU: sizing.primaryCommercialBTU,
+          alternativeCommercialBTU: sizing.alternativeCommercialBTU,
           recommendedHP: sizing.recommendedHP,
           heatLoad: sizing.heatLoad,
+          confidence: sizing.confidence,
+          assumptions: sizing.assumptions,
+          heatLoadFactors: sizing.heatLoadFactors,
           missingImportantFactors: sizing.missingImportantFactors,
         },
+      },
+      consultationTrace: {
+        newEntities,
+        previousRequirements: context.requirements,
+        mergedRequirements: requirements,
+        missingFields: [],
+        selectedSkill,
+        skillInput: {
+          area: requirements.areaM2,
+          roomType: entities.roomType,
+          direction: entities.direction,
+          topFloor: entities.topFloor,
+          connectedKitchen: entities.connectedKitchen,
+          openSpace: entities.openSpace,
+          people: entities.people,
+          largeGlassArea: entities.largeGlassArea,
+          heatSources: entities.heatSources,
+        },
+        skillOutput: {
+          estimatedBTU: sizing.estimatedBTU,
+          recommendedRangeBTU: sizing.recommendedRangeBTU,
+          primaryCommercialBTU: sizing.primaryCommercialBTU,
+          alternativeCommercialBTU: sizing.alternativeCommercialBTU,
+          heatLoad: sizing.heatLoad,
+          heatLoadFactors: sizing.heatLoadFactors,
+          confidence: sizing.confidence,
+        },
+        productSearchQuery: {
+          category: "air-conditioner",
+          primaryCapacityBTU: sizing.primaryCommercialBTU,
+          alternativeCapacityBTU: sizing.alternativeCommercialBTU,
+          inStock: true,
+        },
+        productResultsCount: products.length,
+        responseStrategy: exactCount ? "TECHNICAL_WITH_EXACT_PRODUCTS" : higherCount ? "TECHNICAL_WITH_HIGHER_ALTERNATIVE" : "TECHNICAL_NO_CATALOG_MATCH",
       },
     };
   }

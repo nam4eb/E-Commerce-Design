@@ -1,17 +1,26 @@
 {
-  "generatedAt": "2026-09-17T03:39:05.521Z",
+  "generatedAt": "2026-09-18T01:56:59.009Z",
   "dataset": "D:\\Project\\E-Commerce-Design\\docs\\ai_chatbot_training_dataset.jsonl",
   "splits": [
     "validation",
     "test"
   ],
-  "records": 243,
+  "records": 250,
   "metrics": {
     "intentAccuracy": 100,
     "skillRoutingAccuracy": 100,
     "criticalIntentAccuracy": 100,
-    "entityExtractionAccuracy": 98.99,
-    "forbiddenHallucinationViolations": 0
+    "entityExtractionAccuracy": 99.07,
+    "forbiddenHallucinationViolations": 0,
+    "areaExtractionAccuracy": 100,
+    "contextMergeAccuracy": 100,
+    "slotCompletionAccuracy": 100,
+    "technicalRecommendationConsistency": 100,
+    "sizingBeforeProductSearch": 100,
+    "catalogOverrideViolations": 0,
+    "existingValueReaskingRate": 0,
+    "clarificationAccuracy": 100,
+    "consultationRegressionAccuracy": 100
   },
   "byIntent": {
     "CATEGORY_DISCOVERY": {
@@ -110,8 +119,8 @@
       "accuracy": 100
     },
     "AIR_CONDITIONER_SIZING": {
-      "total": 7,
-      "correct": 7,
+      "total": 11,
+      "correct": 11,
       "accuracy": 100
     },
     "MULTI_CONSTRAINT_SEARCH": {
@@ -135,6 +144,16 @@
       "accuracy": 100
     },
     "PRODUCT_PRICE": {
+      "total": 1,
+      "correct": 1,
+      "accuracy": 100
+    },
+    "AIR_CONDITIONER_HEAT_LOAD": {
+      "total": 2,
+      "correct": 2,
+      "accuracy": 100
+    },
+    "CORRECTION": {
       "total": 1,
       "correct": 1,
       "accuracy": 100

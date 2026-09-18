@@ -20,6 +20,10 @@ type Context = {
   lastCategoryId?: string;
   lastIntent?: Intent;
   constraints?: Record<string, unknown>;
+  pendingSkill?: string;
+  requirements?: Record<string, unknown>;
+  missingFields?: string[];
+  candidateProductIds?: string[];
 };
 type Product = {
   productId: string;

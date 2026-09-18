@@ -10,7 +10,8 @@
     "test:commerce": "node scripts/test-commerce.mjs",
     "eval:ai": "pnpm --filter @workspace/api-server run build && node artifacts/api-server/dist/eval-ai-chatbot.mjs",
     "ai:index-knowledge": "pnpm --filter @workspace/api-server run build && node artifacts/api-server/dist/index-ai-knowledge.mjs",
-    "test:rag": "pnpm --filter @workspace/api-server run build && node artifacts/api-server/dist/test-rag.mjs"
+    "test:rag": "pnpm --filter @workspace/api-server run build && node artifacts/api-server/dist/test-rag.mjs",
+    "test:consultation": "pnpm --filter @workspace/api-server run build && node artifacts/api-server/dist/test-consultation.mjs"
   },
   "private": true,
   "dependencies": {

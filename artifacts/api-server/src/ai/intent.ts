@@ -36,6 +36,7 @@ function deterministicIntent(message: string, context: ChatContext): [ChatIntent
     "tiet kiem dien",
   ]);
   const advice = has(text, ["tu van", "nen mua", "nen chon", "phu hop", "loai nao"]);
+  const roomConsultation = has(text, ["phong ngu", "phong khach", "van phong", "thong bep", "thong voi bep"]);
 
   if (matches(text, /^(xin chao|chao|hello|hi)(\s|$)/) || has(text, ["co ai tu van"]))
     return ["GREETING", 1];
@@ -64,6 +65,8 @@ function deterministicIntent(message: string, context: ChatContext): [ChatIntent
   if (has(text, ["dung duoc cho model", "tuong thich", "lap chung", "ket noi duoc voi"]))
     return ["COMPATIBILITY", 0.98];
   if (matches(text, /^(khong|y toi la|doi lai|sua lai)/)) return ["CORRECTION", 0.98];
+  if (context.pendingSkill === "AIR_CONDITIONER_SIZING" && (area || roomConsultation || has(text, ["huong tay", "ap mai", "nhieu kinh"])))
+    return ["AIR_CONDITIONER_SIZING", 1];
   if (has(text, ["con thu hai", "mau vua noi", "con vua noi", "no co "]))
     return ["FOLLOW_UP_CONTEXT", 0.9];
 
@@ -90,6 +93,9 @@ function deterministicIntent(message: string, context: ChatContext): [ChatIntent
     return ["AIR_CONDITIONER_HEAT_LOAD", 1];
   if (ac && area && has(text, ["bao nhieu btu", "cong suat", "dung dieu hoa", "nen dung", "mau nao"]))
     return ["AIR_CONDITIONER_SIZING", 1];
+  if (ac && area) return ["AIR_CONDITIONER_SIZING", 0.99];
+  if (roomConsultation && (area || has(text, ["thong bep", "thong voi bep", "lien bep", "lien thong bep"])))
+    return ["AIR_CONDITIONER_SIZING", 0.99];
   if (category === "washing-machine" && has(text, ["bao nhieu kg", "kg du khong"]) && has(text, ["nguoi", "gia dinh", "nha "]))
     return ["WASHING_MACHINE_SIZING", 1];
   if (category === "refrigerator" && has(text, ["bao nhieu lit", "dung tich", "lit du khong", "phu hop may nguoi"]))

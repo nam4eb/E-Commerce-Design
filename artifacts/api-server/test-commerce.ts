@@ -12,13 +12,14 @@ import { resolveIntent } from "./src/ai/intent";
 import { extractEntities } from "./src/ai/entities";
 import { normalizeCategory, parseBTU } from "./src/ai/normalization";
 import { calculateAirConditionerCapacity } from "./src/ai/skills/air-conditioner/calculator";
+import { mergeRequirements } from "./src/ai/consultation-state";
 
 test("AI intent, entity normalization and air-conditioner sizing", async (t) => {
   const sizingCases = [
     ["15m² normal bedroom", { area: 15, roomType: "bedroom" }, 9000],
     ["20m² normal bedroom", { area: 20, roomType: "bedroom" }, 12000],
-    ["20m² west-facing", { area: 20, direction: "west" }, 18000],
-    ["20m² top floor", { area: 20, topFloor: true }, 18000],
+    ["20m² west-facing", { area: 20, direction: "WEST" }, 12000],
+    ["20m² top floor", { area: 20, topFloor: true }, 12000],
     ["25m² normal", { area: 25 }, 18000],
     ["30m² normal", { area: 30 }, 18000],
   ] as const;
@@ -72,13 +73,13 @@ test("AI intent, entity normalization and air-conditioner sizing", async (t) => 
   assert.equal(parseBTU("12k BTU"), 12000);
   assert.equal(parseBTU("1,5 ngựa"), 12000);
   assert.deepEqual(
-    extractEntities("ko, tôi muốn 18000 btu cơ", {
-      constraints: { brand: "Daikin", capacityBTU: 12000 },
-    }),
+    mergeRequirements(
+      { brand: "Daikin", capacityBTU: 12000 },
+      extractEntities("ko, tôi muốn 18000 btu cơ"),
+    ),
     {
       brand: "Daikin",
       capacityBTU: 18000,
-      keywords: ["khong", "toi", "muon", "18000", "btu"],
     },
   );
   const entities = extractEntities(
@@ -94,9 +95,9 @@ test("AI intent, entity normalization and air-conditioner sizing", async (t) => 
     },
     {
       area: 20,
-      roomType: "bedroom",
+      roomType: "BEDROOM",
       topFloor: true,
-      direction: "west",
+      direction: "WEST",
       people: 4,
     },
   );

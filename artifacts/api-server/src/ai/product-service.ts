@@ -147,3 +147,37 @@ export async function searchProducts(
     .slice(0, Math.max(1, Math.min(limit, 5)))
     .map((item) => item.product);
 }
+
+export async function searchProductsForSizing(
+  db: ShopDB,
+  entities: ExtractedEntities,
+  primaryCapacityBTU: number,
+  alternativeCapacityBTU?: number,
+  limit = 5,
+) {
+  const candidates = (await listProducts(db))
+    .filter((product) => product.categoryId === "air-conditioner" && product.stock > 0)
+    .filter((product) => !entities.brand || product.brand === entities.brand)
+    .filter((product) => !entities.maxPrice || product.price <= entities.maxPrice)
+    .map((product) => {
+      const capacity = product.capacityBTU || 0;
+      const technicalMatch: ChatProduct["technicalMatch"] =
+        Math.abs(capacity - primaryCapacityBTU) <= 500
+          ? "EXACT_MATCH"
+          : alternativeCapacityBTU && Math.abs(capacity - alternativeCapacityBTU) <= 500
+            ? capacity > primaryCapacityBTU
+              ? "ALTERNATIVE_HIGHER_CAPACITY"
+              : "ALTERNATIVE_LOWER_CAPACITY"
+            : "OUTSIDE_RECOMMENDATION";
+      const rank = technicalMatch === "EXACT_MATCH" ? 0
+        : technicalMatch === "ALTERNATIVE_HIGHER_CAPACITY" ? 1
+          : technicalMatch === "ALTERNATIVE_LOWER_CAPACITY" ? 2 : 3;
+      return { product: { ...product, technicalMatch }, rank };
+    })
+    // Lower-capacity alternatives are classified for correctness but are not
+    // presented as suitable recommendations.
+    .filter((item) => item.rank < 2)
+    .sort((a, b) => a.rank - b.rank || a.product.price - b.product.price)
+    .slice(0, Math.max(1, Math.min(limit, 5)));
+  return candidates.map((item) => item.product);
+}

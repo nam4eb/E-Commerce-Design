@@ -20,7 +20,8 @@ export function extractEntities(
 ): ExtractedEntities {
   const text = normalizeText(message);
   const models = modelCandidates(message);
-  const area = text.match(/(\d+(?:[.,]\d+)?)\s*(?:m2|m vuong|met vuong)/);
+  const area = text.match(/(\d+(?:[.,]\d+)?)\s*(?:m2|m vuong|met vuong)/) ||
+    (text.includes("phong") ? text.match(/(\d+(?:[.,]\d+)?)\s*m\b/) : null);
   const dimensions = text.match(
     /(\d+(?:[.,]\d+)?)\s*(?:m)?\s*[x×]\s*(\d+(?:[.,]\d+)?)\s*(?:m)?(?:\s*[x×]\s*(\d+(?:[.,]\d+)?)\s*m)?/,
   );
@@ -43,6 +44,24 @@ export function extractEntities(
     /(?:mua|bao gia|can|khoang)\s*(\d+)\s*(?:cai|chiec|bo|dieu hoa|tivi|tu lanh|may giat)?/,
   );
   const brand = knownBrands.find((item) => text.includes(normalizeText(item)));
+  const connectedKitchen = includesAny(text, [
+    "thong voi bep",
+    "thong bep",
+    "lien bep",
+    "lien thong bep",
+    "mo ra bep",
+  ]);
+  const roomType = text.includes("phong ngu")
+    ? "BEDROOM" as const
+    : text.includes("phong khach")
+      ? "LIVING_ROOM" as const
+      : text.includes("van phong")
+        ? "OFFICE" as const
+        : text.includes("phong bep")
+          ? "KITCHEN" as const
+          : text.includes("phong")
+            ? "OTHER" as const
+            : undefined;
   const features = [
     "wifi",
     "inverter",
@@ -61,16 +80,16 @@ export function extractEntities(
     "loai tru",
     "khong muon",
   ]);
-  const extractedArea = area
-    ? decimal(area[1])
-    : dimensions
-      ? decimal(dimensions[1])! * decimal(dimensions[2])!
+  const extractedArea = dimensions
+    ? decimal(dimensions[1])! * decimal(dimensions[2])!
+    : area
+      ? decimal(area[1])
       : undefined;
   const current: ExtractedEntities = {
     model: models[0],
     sku: models[0],
     brand,
-    category: normalizeCategory(message),
+    category: (roomType && (extractedArea || connectedKitchen)) ? "air-conditioner" : normalizeCategory(message),
     area: extractedArea,
     areaM2: extractedArea,
     dimensions: dimensions
@@ -85,13 +104,7 @@ export function extractEntities(
       : dimensions?.[3]
         ? decimal(dimensions[3])
         : undefined,
-    roomType: text.includes("phong ngu")
-      ? "bedroom"
-      : text.includes("phong khach")
-        ? "living-room"
-        : text.includes("van phong")
-          ? "office"
-          : undefined,
+    roomType,
     capacityBTU: parseBTU(message),
     horsepower: horsepower ? decimal(horsepower[1]) : undefined,
     inverter: text.includes("inverter") ? !negative : undefined,
@@ -111,7 +124,15 @@ export function extractEntities(
             muoi: 10,
           } as Record<string, number>)[wordPeople[1]]
         : undefined,
-    direction: includesAny(text, ["huong tay", "nang tay"]) ? "west" : undefined,
+    direction: includesAny(text, ["huong tay", "nang tay"])
+      ? "WEST"
+      : text.includes("huong dong")
+        ? "EAST"
+        : text.includes("huong nam")
+          ? "SOUTH"
+          : text.includes("huong bac")
+            ? "NORTH"
+            : undefined,
     topFloor: includesAny(text, [
       "tang ap mai",
       "tang tren cung",
@@ -122,9 +143,13 @@ export function extractEntities(
     largeGlassArea: includesAny(text, ["nhieu kinh", "cua kinh lon"])
       ? true
       : undefined,
-    heatSources: includesAny(text, ["nguon nhiet", "nhieu may", "phong bep"])
-      ? true
-      : undefined,
+    connectedKitchen: connectedKitchen || undefined,
+    openSpace: connectedKitchen || includesAny(text, ["khong gian mo", "lien thong"]) || undefined,
+    heatSources: connectedKitchen
+      ? ["KITCHEN"]
+      : includesAny(text, ["nguon nhiet", "nhieu may", "phong bep"])
+        ? ["OTHER"]
+        : undefined,
     viewingDistanceM: viewing ? decimal(viewing[1]) : undefined,
     minPrice: rangeMillion
       ? price(rangeMillion[1])
@@ -148,10 +173,8 @@ export function extractEntities(
     inStock: includesAny(text, ["con hang", "ton kho"]) ? true : undefined,
     keywords: text.split(" ").filter((word) => word.length >= 3).slice(0, 16),
   };
-  return {
-    ...(context.constraints || {}),
-    ...Object.fromEntries(
-      Object.entries(current).filter(([, value]) => value !== undefined),
-    ),
-  };
+  void context;
+  return Object.fromEntries(
+    Object.entries(current).filter(([, value]) => value !== undefined),
+  );
 }

@@ -15,6 +15,34 @@ export interface ChatContext {
   lastCategoryId?: string;
   lastIntent?: ChatIntent;
   constraints?: Partial<ExtractedEntities>;
+  pendingSkill?: string;
+  requirements?: Partial<ConsultationRequirements>;
+  missingFields?: string[];
+  candidateProductIds?: string[];
+}
+
+export interface ConsultationRequirements {
+  category?: string;
+  areaM2?: number;
+  dimensions?: { width?: number; length?: number; height?: number };
+  roomType?: "BEDROOM" | "LIVING_ROOM" | "OFFICE" | "KITCHEN" | "OTHER";
+  direction?: "EAST" | "WEST" | "SOUTH" | "NORTH";
+  topFloor?: boolean;
+  connectedKitchen?: boolean;
+  openSpace?: boolean;
+  largeGlassArea?: boolean;
+  ceilingHeightM?: number;
+  people?: number;
+  heatSources?: string[];
+  minPrice?: number;
+  maxPrice?: number;
+  brand?: string;
+  capacityBTU?: number;
+  inverter?: boolean;
+  priorities?: string[];
+  requiredFeatures?: string[];
+  excludedFeatures?: string[];
+  excludedBrands?: string[];
 }
 
 export interface ExtractedEntities {
@@ -29,15 +57,17 @@ export interface ExtractedEntities {
   areaM2?: number;
   dimensions?: { width?: number; length?: number; height?: number };
   ceilingHeight?: number;
-  roomType?: string;
+  roomType?: ConsultationRequirements["roomType"];
   capacityBTU?: number;
   horsepower?: number;
   inverter?: boolean;
   people?: number;
-  direction?: string;
+  direction?: ConsultationRequirements["direction"];
   topFloor?: boolean;
+  connectedKitchen?: boolean;
+  openSpace?: boolean;
   largeGlassArea?: boolean;
-  heatSources?: boolean;
+  heatSources?: string[];
   viewingDistanceM?: number;
   requiredFeatures?: string[];
   excludedFeatures?: string[];
@@ -58,6 +88,7 @@ export interface ChatProduct {
   stock: number;
   brand: string;
   capacityBTU?: number;
+  technicalMatch?: "EXACT_MATCH" | "ALTERNATIVE_HIGHER_CAPACITY" | "ALTERNATIVE_LOWER_CAPACITY" | "OUTSIDE_RECOMMENDATION";
 }
 
 export type ChatResponseType =
@@ -79,8 +110,14 @@ export interface AIChatResponse {
     type: "AIR_CONDITIONER";
     estimatedBTU: number;
     recommendedBTU: number;
+    recommendedRangeBTU: { min: number; max: number };
+    primaryCommercialBTU: number;
+    alternativeCommercialBTU?: number;
     recommendedHP: number;
-    heatLoad: "LOW" | "NORMAL" | "HIGH";
+    heatLoad: "LOW" | "NORMAL" | "ELEVATED" | "HIGH";
+    confidence: "HIGH" | "MEDIUM" | "LOW";
+    assumptions: string[];
+    heatLoadFactors: string[];
     missingImportantFactors: string[];
   };
   conversationId?: string;

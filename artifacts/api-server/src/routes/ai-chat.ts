@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { Router } from "express";
 import { answerChat } from "../ai/chat-engine";
-import type { AIChatResponse, ChatContext, ChatIntent } from "../ai/types";
+import type { AIChatResponse, ChatContext, ChatIntent, ConsultationRequirements } from "../ai/types";
 import { chatIntentSet } from "../ai/taxonomy";
 import { check, HttpError, type Guards, type ShopDB } from "../lib/shop-shared";
 
@@ -40,6 +40,9 @@ function rateLimit(ip: string) {
 function parseContext(value: unknown): ChatContext {
   if (!value || typeof value !== "object") return {};
   const input = value as Record<string, unknown>;
+  const requirements = input.requirements && typeof input.requirements === "object"
+    ? input.requirements as Partial<ConsultationRequirements>
+    : undefined;
   return {
     lastProductId:
       typeof input.lastProductId === "string" &&
@@ -60,6 +63,15 @@ function parseContext(value: unknown): ChatContext {
       input.constraints && typeof input.constraints === "object"
         ? input.constraints
         : undefined,
+    pendingSkill: typeof input.pendingSkill === "string" && input.pendingSkill.length <= 100
+      ? input.pendingSkill : undefined,
+    requirements,
+    missingFields: Array.isArray(input.missingFields)
+      ? input.missingFields.filter((item): item is string => typeof item === "string").slice(0, 10)
+      : undefined,
+    candidateProductIds: Array.isArray(input.candidateProductIds)
+      ? input.candidateProductIds.filter((item): item is string => typeof item === "string").slice(0, 10)
+      : undefined,
   };
 }
 
@@ -211,6 +223,16 @@ export function registerAiChat(router: Router, db: ShopDB, { auth }: Guards) {
       documentIds: result.ragTrace?.documentIds,
       embeddingModel: result.ragTrace?.embeddingModel,
       generationModel: result.generation?.model,
+      newEntities: result.consultationTrace?.newEntities,
+      previousRequirements: result.consultationTrace?.previousRequirements,
+      mergedRequirements: result.consultationTrace?.mergedRequirements,
+      missingFields: result.consultationTrace?.missingFields,
+      selectedSkill: result.consultationTrace?.selectedSkill,
+      skillInput: result.consultationTrace?.skillInput,
+      skillOutput: result.consultationTrace?.skillOutput,
+      productSearchQuery: result.consultationTrace?.productSearchQuery,
+      productResultsCount: result.consultationTrace?.productResultsCount,
+      responseStrategy: result.consultationTrace?.responseStrategy,
     });
     res.json(response);
   });
